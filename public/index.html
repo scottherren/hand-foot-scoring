@@ -13,283 +13,527 @@
   --bg:#0d1117;--surface:#161b22;--card:#21262d;--card2:#2d333b;
   --border:#30363d;--accent:#7c3aed;--accent2:#a78bfa;
   --gold:#f59e0b;--green:#34d399;--red:#f87171;--blue:#60a5fa;
+  --orange:#fb923c;--teal:#2dd4bf;
   --text:#e6edf3;--muted:#8b949e;--dim:#484f58;
   --r:12px;--rs:8px;
+  /* phone layout */
   --tab-h:60px;--safe-b:env(safe-area-inset-bottom,0px);
+  --sidebar-w:0px;
 }
 html,body{height:100%;background:var(--bg);color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow:hidden}
 #app{height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
 
-/* ── SETUP ───────────────────────────────────────────────── */
-#screen-setup{display:flex;flex-direction:column;align-items:center;justify-content:center;
-  min-height:100vh;min-height:100dvh;padding:24px;gap:28px;overflow-y:auto}
+/* ════════════════════════════════════════════════
+   SETUP SCREEN
+   ════════════════════════════════════════════════ */
+#screen-setup{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;min-height:100dvh;padding:24px;gap:24px;overflow-y:auto;
+  background:var(--bg)}
 .logo-suits{font-size:2.2rem;letter-spacing:10px;color:var(--accent2);text-align:center}
 .logo-title{font-size:2rem;font-weight:800;text-align:center;letter-spacing:-0.5px}
 .logo-sub{font-size:0.85rem;color:var(--muted);text-align:center;margin-top:2px}
-.setup-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
-  padding:20px;width:100%;max-width:480px;display:flex;flex-direction:column;gap:18px}
-.section-label{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
-  color:var(--muted);margin-bottom:6px}
-.count-row{display:flex;gap:6px}
-.count-btn{flex:1;height:44px;border:1px solid var(--border);border-radius:var(--rs);
+.setup-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:24px;width:100%;max-width:520px;display:flex;flex-direction:column;gap:20px}
+.section-label{
+  font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--muted);margin-bottom:8px}
+.count-row{display:flex;gap:8px}
+.count-btn{
+  flex:1;height:46px;border:1px solid var(--border);border-radius:var(--rs);
   background:var(--card);color:var(--text);font-size:1rem;font-weight:600;cursor:pointer;
   transition:all .15s;-webkit-tap-highlight-color:transparent}
 .count-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
 .names-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-input[type=text],input[type=number]{background:var(--card);border:1px solid var(--border);
-  border-radius:var(--rs);color:var(--text);font-size:.9rem;padding:10px 12px;width:100%;
+input[type=text],input[type=number]{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--rs);
+  color:var(--text);font-size:.9rem;padding:10px 12px;width:100%;
   outline:none;transition:border-color .15s;-webkit-appearance:none}
 input[type=text]:focus,input[type=number]:focus{border-color:var(--accent2)}
 input[type=number]{text-align:center;font-family:'SF Mono',monospace;font-weight:600}
-.btn-primary{height:52px;border-radius:var(--r);border:none;background:var(--accent);
+.btn-primary{
+  height:52px;border-radius:var(--r);border:none;background:var(--accent);
   color:#fff;font-size:1rem;font-weight:700;cursor:pointer;width:100%;
   transition:opacity .15s,transform .1s;-webkit-tap-highlight-color:transparent}
 .btn-primary:active{opacity:.85;transform:scale(.98)}
-.btn-ghost{height:44px;border-radius:var(--rs);border:1px solid var(--border);
+.btn-ghost{
+  height:44px;border-radius:var(--rs);border:1px solid var(--border);
   background:transparent;color:var(--muted);font-size:.88rem;font-weight:500;
   cursor:pointer;width:100%;transition:background .15s;-webkit-tap-highlight-color:transparent}
 .btn-ghost:active{background:var(--card)}
 
-/* ── MAIN SHELL ──────────────────────────────────────────── */
-#screen-main{display:flex;flex-direction:column;height:100vh;height:100dvh}
-.tab-content{flex:1;overflow:hidden;display:flex;flex-direction:column}
+/* ════════════════════════════════════════════════
+   MAIN SHELL — phone: column (tabs on bottom)
+                tablet ≥768: column (tabs on bottom)
+                desktop ≥1100: row (sidebar on left)
+   ════════════════════════════════════════════════ */
+#screen-main{
+  display:flex;flex-direction:column;
+  height:100vh;height:100dvh;overflow:hidden}
+.tab-content{flex:1;overflow:hidden;display:flex;flex-direction:column;min-width:0}
 
-/* ── TAB BAR ─────────────────────────────────────────────── */
-#tab-bar{display:flex;background:var(--surface);border-top:1px solid var(--border);
-  padding-bottom:var(--safe-b);flex-shrink:0}
-.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:3px;border:none;background:transparent;color:var(--dim);cursor:pointer;
+/* ── BOTTOM TAB BAR (phone + tablet) ── */
+#tab-bar{
+  display:flex;background:var(--surface);
+  border-top:1px solid var(--border);
+  padding-bottom:var(--safe-b);flex-shrink:0;order:99}
+.tab-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;border:none;background:transparent;color:var(--dim);cursor:pointer;
   padding:8px 0;transition:color .15s;-webkit-tap-highlight-color:transparent;
   min-height:var(--tab-h)}
 .tab-btn.active{color:var(--accent2)}
-.tab-btn svg{width:20px;height:20px}
+.tab-btn svg{width:22px;height:22px}
 .tab-label{font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
 
-/* ── GAME TAB ────────────────────────────────────────────── */
+/* ════════════════════════════════════════════════
+   GAME TAB
+   ════════════════════════════════════════════════ */
 #tab-game{display:flex;flex-direction:column;flex:1;overflow:hidden}
-.game-header{background:var(--surface);border-bottom:1px solid var(--border);
-  padding:10px 14px 8px;flex-shrink:0}
-.round-meta{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-.round-badge{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
-  color:var(--accent2);background:rgba(124,58,237,.15);padding:3px 10px;border-radius:99px}
-.round-min-label{font-size:.78rem;color:var(--muted)}
-.lb-strip{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:2px 0}
+
+.game-header{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:10px 16px 8px;flex-shrink:0}
+.round-meta{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.round-badge{
+  font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--accent2);background:rgba(124,58,237,.15);padding:4px 12px;border-radius:99px}
+.round-pill{
+  font-size:.72rem;color:var(--muted);background:var(--card);
+  padding:4px 10px;border-radius:99px;border:1px solid var(--border);white-space:nowrap}
+.round-pill b{color:var(--text);font-weight:700}
+
+/* leaderboard strip */
+.lb-strip{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;padding:2px 0}
 .lb-strip::-webkit-scrollbar{display:none}
-.lb-item{display:flex;flex-direction:column;align-items:center;min-width:52px;flex-shrink:0}
-.lb-name{font-size:.62rem;color:var(--muted);white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis;max-width:56px;text-align:center}
-.lb-score{font-size:.9rem;font-weight:700;font-family:'SF Mono',monospace}
+.lb-item{
+  display:flex;flex-direction:column;align-items:center;
+  min-width:60px;flex-shrink:0}
+.lb-name{
+  font-size:.65rem;color:var(--muted);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;max-width:64px;text-align:center}
+.lb-score{font-size:.95rem;font-weight:700;font-family:'SF Mono',monospace}
 .lb-item.leader .lb-name,.lb-item.leader .lb-score{color:var(--gold)}
 
-.cards-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
-  padding:10px 10px 6px;display:flex;flex-direction:column;gap:8px}
+/* cards area — phone: single column, ≥600: 2-col, desktop handled separately */
+.cards-area{
+  flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:12px;
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+  align-content:start}
 
-/* ── PLAYER CARD ─────────────────────────────────────────── */
-.player-card{background:var(--surface);border:1px solid var(--border);
+/* ════════════════════════════════════════════════
+   PLAYER CARD
+   ════════════════════════════════════════════════ */
+.player-card{
+  background:var(--surface);border:1px solid var(--border);
   border-radius:var(--r);overflow:hidden;transition:border-color .2s}
-.player-card.went-out{border-color:var(--gold)}
-.card-head{display:flex;align-items:center;justify-content:space-between;
-  padding:10px 14px 8px;background:var(--card)}
-.p-name{font-weight:700;font-size:.95rem}
-.p-running{font-size:.75rem;color:var(--muted);margin-top:1px}
-.p-running b{font-family:'SF Mono',monospace;color:var(--text)}
-.rt-wrap{text-align:right}
-.rt-num{font-size:1.35rem;font-weight:800;font-family:'SF Mono',monospace;line-height:1}
+.player-card.went-out{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+
+.card-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px 10px;background:var(--card);gap:12px}
+.p-name{font-weight:700;font-size:1rem}
+.p-running{font-size:.75rem;color:var(--muted);margin-top:2px}
+.p-running b{font-family:'SF Mono',monospace;color:var(--text);font-size:.85rem}
+
+.rt-wrap{text-align:right;flex-shrink:0}
+.rt-num{font-size:1.4rem;font-weight:800;font-family:'SF Mono',monospace;line-height:1}
 .rt-num.pos{color:var(--green)}.rt-num.neg{color:var(--red)}.rt-num.zero{color:var(--dim)}
-.rt-lbl{font-size:.62rem;color:var(--muted)}
-.card-body{padding:10px 12px 12px}
+.rt-lbl{font-size:.62rem;color:var(--muted);margin-top:2px}
 
-/* chips */
-.chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
-.chip{display:flex;align-items:center;border-radius:99px;overflow:hidden;
-  border:1px solid var(--border);flex-shrink:0;height:36px}
-.chip-lbl{padding:0 8px;font-size:.7rem;font-weight:600;background:var(--card);
-  height:36px;display:flex;align-items:center;white-space:nowrap;pointer-events:none}
-.chip-val{min-width:26px;height:36px;display:flex;align-items:center;justify-content:center;
-  font-size:.82rem;font-weight:700;font-family:'SF Mono',monospace;
-  background:var(--card2);border-left:1px solid var(--border);border-right:1px solid var(--border)}
-.chip-btn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;
-  border:none;background:var(--card);color:var(--muted);font-size:1.1rem;cursor:pointer;
-  transition:background .1s,color .1s;-webkit-tap-highlight-color:transparent;user-select:none}
+.card-body{padding:12px 14px 14px}
+
+/* requirement progress bar */
+.req-bar{display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.req-item{display:flex;align-items:center;gap:4px;font-size:.68rem;font-weight:600}
+.req-dot{width:8px;height:8px;border-radius:50%;background:var(--dim);flex-shrink:0}
+.req-dot.met{background:var(--green)}
+.req-label{color:var(--muted)}
+.req-label.met{color:var(--green)}
+
+/* ── CHIPS ── */
+.chips{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+
+/* Each chip row: label | − | val | /req | + */
+.chip{
+  display:flex;align-items:center;
+  border:1px solid var(--border);border-radius:var(--rs);
+  overflow:hidden;height:40px;width:100%}
+.chip-lbl{
+  flex:1;padding:0 12px;font-size:.78rem;font-weight:600;
+  background:var(--card);height:40px;
+  display:flex;align-items:center;white-space:nowrap;
+  pointer-events:none;gap:6px;min-width:0}
+.chip-lbl-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip-controls{display:flex;align-items:center;flex-shrink:0}
+.chip-btn{
+  width:44px;height:40px;display:flex;align-items:center;justify-content:center;
+  border:none;border-left:1px solid var(--border);
+  background:var(--card);color:var(--muted);font-size:1.2rem;cursor:pointer;
+  transition:background .1s,color .1s;-webkit-tap-highlight-color:transparent;
+  user-select:none;flex-shrink:0}
+.chip-btn:first-child{border-left:1px solid var(--border)}
 .chip-btn:active{background:var(--card2);color:var(--text)}
-.chip.r3 .chip-lbl{color:var(--red)}.chip.r3 .chip-val{color:var(--red)}
-.chip.clean .chip-val{color:var(--green)}.chip.dirty .chip-val{color:var(--blue)}
-.go-chip{height:36px;padding:0 12px;border-radius:99px;border:1px solid var(--border);
-  background:var(--card);color:var(--muted);font-size:.72rem;font-weight:600;
-  cursor:pointer;display:flex;align-items:center;gap:4px;transition:all .15s;
-  -webkit-tap-highlight-color:transparent;white-space:nowrap}
-.go-chip.active{background:var(--gold);border-color:var(--gold);color:#000}
+.chip-val{
+  width:44px;height:40px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.9rem;font-weight:700;font-family:'SF Mono',monospace;
+  background:var(--card2);
+  border-left:1px solid var(--border);border-right:1px solid var(--border)}
+.chip-req{
+  width:34px;height:40px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.68rem;font-weight:700;
+  background:var(--card2);border-right:1px solid var(--border);
+  color:var(--muted)}
+.chip-req.met{color:var(--green)}
 
-/* steppers */
+/* chip accent colors */
+.chip.r3    .chip-lbl{color:var(--red)}   .chip.r3    .chip-val{color:var(--red)}
+.chip.clean .chip-lbl{color:var(--green)} .chip.clean .chip-val{color:var(--green)}
+.chip.dirty .chip-lbl{color:var(--blue)}  .chip.dirty .chip-val{color:var(--blue)}
+.chip.sevens .chip-lbl{color:var(--gold)} .chip.sevens .chip-val{color:var(--gold)}
+.chip.wilds .chip-lbl{color:var(--orange)}.chip.wilds .chip-val{color:var(--orange)}
+
+/* go-out button — full width row */
+.go-chip{
+  width:100%;height:40px;border-radius:var(--rs);
+  border:1px solid var(--border);background:var(--card);color:var(--muted);
+  font-size:.82rem;font-weight:600;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  transition:all .15s;-webkit-tap-highlight-color:transparent;white-space:nowrap}
+.go-chip.active{background:rgba(245,158,11,.2);border-color:var(--gold);color:var(--gold);font-weight:700}
+.go-chip.blocked{opacity:.4;cursor:default}
+
+/* meld stepper */
 .steppers{display:flex;flex-direction:column;gap:6px}
-.stepper-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.stepper-lbl{font-size:.78rem;color:var(--muted);flex:1}
-.stepper{display:flex;align-items:center;border:1px solid var(--border);
-  border-radius:var(--rs);overflow:hidden}
-.s-btn{width:40px;height:38px;border:none;background:var(--card);color:var(--text);
-  font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;
+.stepper-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.stepper-lbl{font-size:.8rem;color:var(--muted);flex:1}
+.stepper{
+  display:flex;align-items:center;border:1px solid var(--border);
+  border-radius:var(--rs);overflow:hidden;flex-shrink:0}
+.s-btn{
+  width:44px;height:40px;border:none;background:var(--card);color:var(--text);
+  font-size:1.15rem;cursor:pointer;display:flex;align-items:center;justify-content:center;
   -webkit-tap-highlight-color:transparent;user-select:none;transition:background .1s}
 .s-btn:active{background:var(--card2)}
-.s-inp{width:68px;height:38px;border:none;border-left:1px solid var(--border);
-  border-right:1px solid var(--border);background:var(--card2);color:var(--text);
-  font-size:.9rem;font-weight:700;font-family:'SF Mono',monospace;
+.s-inp{
+  width:80px;height:40px;border:none;
+  border-left:1px solid var(--border);border-right:1px solid var(--border);
+  background:var(--card2);color:var(--text);
+  font-size:.95rem;font-weight:700;font-family:'SF Mono',monospace;
   text-align:center;outline:none}
 
-/* action bar */
-.action-bar{flex-shrink:0;padding:8px 10px calc(8px + var(--safe-b));
-  background:var(--surface);border-top:1px solid var(--border);display:flex;gap:8px}
-.btn-undo{height:48px;min-width:76px;border-radius:var(--rs);border:1px solid var(--border);
-  background:var(--card);color:var(--text);font-size:.82rem;font-weight:600;
+/* ── ACTION BAR ── */
+.action-bar{
+  flex-shrink:0;padding:10px 12px calc(10px + var(--safe-b));
+  background:var(--surface);border-top:1px solid var(--border);display:flex;gap:10px}
+.btn-undo{
+  height:50px;min-width:84px;border-radius:var(--rs);border:1px solid var(--border);
+  background:var(--card);color:var(--text);font-size:.84rem;font-weight:600;
   cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;
   flex-shrink:0;transition:background .15s;-webkit-tap-highlight-color:transparent}
 .btn-undo:active{background:var(--card2)}
 .btn-undo:disabled{opacity:.35;cursor:not-allowed}
-.btn-save{flex:1;height:48px;border-radius:var(--rs);border:none;background:var(--accent);
-  color:#fff;font-size:.95rem;font-weight:700;cursor:pointer;letter-spacing:.02em;
+.btn-save{
+  flex:1;height:50px;border-radius:var(--rs);border:none;background:var(--accent);
+  color:#fff;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;
   transition:opacity .15s,transform .1s;-webkit-tap-highlight-color:transparent}
 .btn-save:active{opacity:.85;transform:scale(.98)}
 
-/* ── REVIEW TAB ──────────────────────────────────────────── */
+/* ════════════════════════════════════════════════
+   HISTORY / REVIEW TAB
+   ════════════════════════════════════════════════ */
 #tab-review{display:flex;flex-direction:column;flex:1;overflow:hidden}
-.tab-header{padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);
+.tab-header{
+  padding:13px 18px;background:var(--surface);border-bottom:1px solid var(--border);
   flex-shrink:0;font-size:1rem;font-weight:700}
-.rounds-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
-  padding:10px;display:flex;flex-direction:column;gap:8px}
-.round-row{background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--r);overflow:hidden}
-.rr-head{display:flex;align-items:center;justify-content:space-between;
-  padding:11px 14px;cursor:pointer;-webkit-tap-highlight-color:transparent;gap:8px}
-.rr-num{font-weight:700;font-size:.9rem;flex-shrink:0}
-.rr-scores{display:flex;gap:6px;flex-wrap:wrap;flex:1;overflow:hidden}
-.rr-ps{font-size:.72rem;color:var(--muted);white-space:nowrap}
+.rounds-list{
+  flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:12px;display:flex;flex-direction:column;gap:10px}
+.round-row{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.rr-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent;gap:10px}
+.rr-num{font-weight:700;font-size:.92rem;flex-shrink:0}
+.rr-scores{display:flex;gap:8px;flex-wrap:wrap;flex:1;overflow:hidden}
+.rr-ps{font-size:.74rem;color:var(--muted);white-space:nowrap}
 .rr-ps b{color:var(--text);font-family:'SF Mono',monospace}
-.rr-chevron{color:var(--dim);font-size:.75rem;flex-shrink:0;transition:transform .2s}
+.rr-chevron{color:var(--dim);font-size:.8rem;flex-shrink:0;transition:transform .2s}
 .round-row.open .rr-chevron{transform:rotate(180deg)}
-.rr-detail{display:none;border-top:1px solid var(--border);padding:12px}
+.rr-detail{display:none;border-top:1px solid var(--border);padding:14px}
 .round-row.open .rr-detail{display:block}
-.detail-table{width:100%;border-collapse:collapse;font-size:.75rem}
-.detail-table th{text-align:right;color:var(--muted);font-weight:600;padding:3px 6px 3px 0}
+.detail-table{width:100%;border-collapse:collapse;font-size:.77rem}
+.detail-table th{
+  text-align:right;color:var(--muted);font-weight:600;
+  padding:4px 8px 4px 0;font-size:.7rem}
 .detail-table th:first-child{text-align:left}
-.detail-table td{text-align:right;font-family:'SF Mono',monospace;padding:3px 6px 3px 0}
+.detail-table td{text-align:right;font-family:'SF Mono',monospace;padding:4px 8px 4px 0}
 .detail-table td:first-child{text-align:left;font-family:inherit;color:var(--muted)}
-.detail-table tr.tot td{border-top:1px solid var(--border);font-weight:700;
-  color:var(--text);padding-top:7px}
-.rr-actions{display:flex;gap:8px;margin-top:10px}
-.btn-sm{height:34px;padding:0 12px;border-radius:var(--rs);font-size:.78rem;font-weight:600;
+.detail-table tr.tot td{
+  border-top:1px solid var(--border);font-weight:700;color:var(--text);padding-top:8px}
+.rr-actions{display:flex;gap:8px;margin-top:12px}
+.btn-sm{
+  height:36px;padding:0 14px;border-radius:var(--rs);font-size:.8rem;font-weight:600;
   cursor:pointer;border:1px solid var(--border);transition:background .15s;
   -webkit-tap-highlight-color:transparent}
 .btn-sm-plain{background:var(--card);color:var(--text)}
 .btn-sm-plain:active{background:var(--card2)}
 .btn-sm-danger{background:var(--card);color:var(--red);border-color:var(--red)}
 .btn-sm-danger:active{background:rgba(248,113,113,.12)}
-.totals-card{background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--r);padding:12px}
-.totals-title{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
-  color:var(--muted);margin-bottom:8px}
-.totals-row{display:flex;justify-content:space-between;align-items:center;
-  padding:7px 10px;background:var(--card);border-radius:var(--rs);margin-bottom:6px}
+.totals-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);padding:14px}
+.totals-title{
+  font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--muted);margin-bottom:10px}
+.totals-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 12px;background:var(--card);border-radius:var(--rs);margin-bottom:6px}
 .totals-row:last-child{margin-bottom:0}
 .totals-row.leader{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3)}
-.totals-name{font-weight:600;font-size:.88rem}
+.totals-name{font-weight:600;font-size:.9rem}
 .totals-score{font-family:'SF Mono',monospace;font-weight:700;font-size:1.1rem}
 .totals-row.leader .totals-name,.totals-row.leader .totals-score{color:var(--gold)}
 
-/* ── SETTINGS TAB ────────────────────────────────────────── */
-#tab-settings{display:flex;flex-direction:column;flex:1;overflow:hidden}
-.settings-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
-  padding:10px;display:flex;flex-direction:column;gap:10px}
-.settings-section{background:var(--surface);border:1px solid var(--border);
+/* ════════════════════════════════════════════════
+   RULES TAB
+   ════════════════════════════════════════════════ */
+#tab-rules{display:flex;flex-direction:column;flex:1;overflow:hidden}
+.rules-scroll{
+  flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:12px;display:flex;flex-direction:column;gap:10px}
+.rules-section{
+  background:var(--surface);border:1px solid var(--border);
   border-radius:var(--r);overflow:hidden}
-.s-section-title{padding:8px 14px;font-size:.65rem;font-weight:700;text-transform:uppercase;
-  letter-spacing:.1em;color:var(--muted);background:var(--card);border-bottom:1px solid var(--border)}
-.s-row{display:flex;align-items:center;justify-content:space-between;
-  padding:11px 14px;border-bottom:1px solid var(--border);gap:12px}
-.s-row:last-child{border-bottom:none}
-.s-lbl{font-size:.86rem;font-weight:500;flex:1}
-.s-hint{font-size:.7rem;color:var(--muted);margin-top:1px}
-.s-inp-sm{width:72px;text-align:center}
-.mins-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:12px}
-.min-cell{display:flex;flex-direction:column;align-items:center;gap:4px}
-.min-cell label{font-size:.65rem;color:var(--muted)}
-/* toggle */
-.tog{position:relative;width:44px;height:24px;flex-shrink:0}
-.tog input{opacity:0;width:0;height:0;position:absolute}
-.tog-track{position:absolute;inset:0;background:var(--dim);border-radius:12px;cursor:pointer;transition:background .2s}
-.tog-track::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;
-  background:#fff;top:3px;left:3px;transition:transform .2s}
-.tog input:checked+.tog-track{background:var(--accent)}
-.tog input:checked+.tog-track::after{transform:translateX(20px)}
-/* export/danger */
-.export-row{padding:10px;display:flex;gap:8px}
-.btn-export{flex:1;height:40px;border-radius:var(--rs);border:1px solid var(--border);
-  background:var(--card);color:var(--text);font-size:.8rem;font-weight:600;
+.r-section-title{
+  padding:8px 16px;font-size:.65rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--muted);background:var(--card);
+  border-bottom:1px solid var(--border)}
+.hand-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.hand-col{
+  padding:14px 16px;border-right:1px solid var(--border);
+  border-bottom:1px solid var(--border)}
+.hand-col:nth-child(even){border-right:none}
+.hand-col:nth-last-child(-n+2){border-bottom:none}
+.hand-num{
+  font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--accent2);margin-bottom:8px}
+.hand-stat{display:flex;justify-content:space-between;font-size:.77rem;padding:3px 0}
+.hand-stat-lbl{color:var(--muted)}
+.hand-stat-val{font-weight:600;font-family:'SF Mono',monospace;color:var(--text)}
+.hand-stat-val.gold{color:var(--gold)}
+.scoring-rows{padding:12px 16px;display:flex;flex-direction:column;gap:5px}
+.scoring-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 12px;border-radius:var(--rs);background:var(--card)}
+.scoring-row-lbl{font-size:.82rem;color:var(--muted);display:flex;align-items:center;gap:8px}
+.scoring-row-val{font-size:.88rem;font-weight:700;font-family:'SF Mono',monospace}
+.score-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.rules-note{padding:12px 16px;font-size:.8rem;color:var(--muted);line-height:1.75}
+.rules-note li{margin-left:16px;margin-bottom:4px}
+.rules-note b{color:var(--text)}
+.settings-section{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);overflow:hidden}
+.s-section-title{
+  padding:8px 16px;font-size:.65rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--muted);background:var(--card);
+  border-bottom:1px solid var(--border)}
+.export-row{padding:12px;display:flex;gap:8px}
+.btn-export{
+  flex:1;height:42px;border-radius:var(--rs);border:1px solid var(--border);
+  background:var(--card);color:var(--text);font-size:.82rem;font-weight:600;
   cursor:pointer;transition:background .15s}
 .btn-export:active{background:var(--card2)}
-.danger-row{padding:10px;display:flex;flex-direction:column;gap:8px}
-.btn-danger{height:44px;border-radius:var(--rs);border:1px solid var(--red);
+.danger-row{padding:12px;display:flex;flex-direction:column;gap:8px}
+.btn-danger{
+  height:44px;border-radius:var(--rs);border:1px solid var(--red);
   background:transparent;color:var(--red);font-size:.86rem;font-weight:600;
   cursor:pointer;width:100%;transition:background .15s}
 .btn-danger:active{background:rgba(248,113,113,.1)}
-/* help */
-.help-body{padding:12px 14px;font-size:.8rem;color:var(--muted);line-height:1.75}
-.help-body li{margin-left:14px;margin-bottom:2px}
 
-/* ── MODALS ──────────────────────────────────────────────── */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);
+/* ════════════════════════════════════════════════
+   MODALS
+   ════════════════════════════════════════════════ */
+.overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.75);
   display:flex;align-items:center;justify-content:center;
-  z-index:1000;padding:20px;backdrop-filter:blur(4px)}
+  z-index:1000;padding:20px;backdrop-filter:blur(6px)}
 .overlay.bottom{align-items:flex-end;padding:0}
-.modal-sheet{background:var(--surface);border-radius:16px;padding:20px;
-  width:100%;max-width:360px;display:flex;flex-direction:column;gap:14px}
-.overlay.bottom .modal-sheet{border-radius:16px 16px 0 0;max-width:480px;
-  padding:20px 20px calc(20px + var(--safe-b))}
+.modal-sheet{
+  background:var(--surface);border-radius:16px;padding:22px;
+  width:100%;max-width:400px;display:flex;flex-direction:column;gap:16px;
+  box-shadow:0 24px 64px rgba(0,0,0,.5)}
+.overlay.bottom .modal-sheet{
+  border-radius:20px 20px 0 0;max-width:560px;
+  padding:22px 22px calc(22px + var(--safe-b))}
 .modal-title{font-size:1.05rem;font-weight:700}
-.modal-body{font-size:.88rem;color:var(--muted);line-height:1.5}
+.modal-body{font-size:.88rem;color:var(--muted);line-height:1.55}
 .modal-actions{display:flex;gap:8px}
-.modal-actions button{flex:1;height:46px;border-radius:var(--rs);
-  font-size:.9rem;font-weight:700;cursor:pointer;border:none;
+.modal-actions button{
+  flex:1;height:48px;border-radius:var(--rs);
+  font-size:.92rem;font-weight:700;cursor:pointer;border:none;
   -webkit-tap-highlight-color:transparent}
 .btn-cancel{background:var(--card);color:var(--text);border:1px solid var(--border) !important}
 .btn-ok{background:var(--accent);color:#fff}
 .btn-ok-danger{background:var(--red);color:#fff}
-.summary-rows{display:flex;flex-direction:column;gap:6px}
-.sum-row{display:flex;justify-content:space-between;align-items:center;
-  padding:8px 12px;background:var(--card);border-radius:var(--rs)}
-.sum-name{font-weight:600;font-size:.9rem}
-.sum-delta{font-family:'SF Mono',monospace;font-weight:700;font-size:1rem}
-.sum-run{font-size:.7rem;color:var(--muted);text-align:right}
+.summary-rows{display:flex;flex-direction:column;gap:8px}
+.sum-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 14px;background:var(--card);border-radius:var(--rs)}
+.sum-name{font-weight:600;font-size:.92rem}
+.sum-delta{font-family:'SF Mono',monospace;font-weight:700;font-size:1.05rem}
+.sum-run{font-size:.72rem;color:var(--muted);text-align:right;margin-top:2px}
+.sum-winner{background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.4)}
+.sum-winner .sum-name{color:var(--gold)}
+.sum-winner .sum-delta{color:var(--gold)}
 
-/* ── TOAST ───────────────────────────────────────────────── */
-#toast{position:fixed;bottom:calc(var(--tab-h) + var(--safe-b) + 10px);
+/* ════════════════════════════════════════════════
+   TOAST
+   ════════════════════════════════════════════════ */
+#toast{
+  position:fixed;bottom:calc(var(--tab-h) + var(--safe-b) + 12px);
   left:50%;transform:translateX(-50%);
-  background:var(--card2);color:var(--text);padding:9px 18px;
-  border-radius:99px;font-size:.82rem;font-weight:600;z-index:999;
+  background:var(--card2);color:var(--text);padding:10px 20px;
+  border-radius:99px;font-size:.84rem;font-weight:600;z-index:999;
   pointer-events:none;transition:opacity .3s;white-space:nowrap;
-  border:1px solid var(--border);opacity:0}
+  border:1px solid var(--border);opacity:0;
+  box-shadow:0 4px 20px rgba(0,0,0,.4)}
 #toast.show{opacity:1}
 
-/* ── FLASH ───────────────────────────────────────────────── */
-@keyframes flash{0%{background:rgba(52,211,153,.2)}100%{background:transparent}}
+/* ════════════════════════════════════════════════
+   FLASH + EMPTY
+   ════════════════════════════════════════════════ */
+@keyframes flash{0%{background:rgba(52,211,153,.18)}100%{background:transparent}}
 .flash{animation:flash .4s ease-out}
 
-/* ── EMPTY STATE ─────────────────────────────────────────── */
-.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:48px 24px;gap:10px;color:var(--muted);text-align:center;flex:1}
-.empty-icon{font-size:2.5rem;opacity:.35}
-.empty p{font-size:.86rem;line-height:1.6}
+.empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:56px 24px;gap:12px;color:var(--muted);text-align:center;flex:1}
+.empty-icon{font-size:2.8rem;opacity:.3}
+.empty p{font-size:.88rem;line-height:1.65}
 
-/* ── RESPONSIVE ──────────────────────────────────────────── */
-@media(min-width:600px){
-  .cards-area{flex-direction:row;flex-wrap:wrap}
-  .player-card{flex:1;min-width:260px}
-}
-@media(orientation:landscape)and(max-height:500px){
-  .cards-area{flex-direction:row;flex-wrap:wrap}
-  .player-card{flex:1;min-width:240px}
-}
-::-webkit-scrollbar{width:3px;height:3px}
+/* ════════════════════════════════════════════════
+   SCROLLBARS
+   ════════════════════════════════════════════════ */
+::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px}
+
+/* ════════════════════════════════════════════════
+   TABLET  ≥ 600px
+   2-column card grid, larger touch targets
+   ════════════════════════════════════════════════ */
+@media(min-width:600px){
+  .cards-area{grid-template-columns:repeat(2,1fr)}
+  .chip-lbl{font-size:.8rem}
+  .names-grid{grid-template-columns:repeat(3,1fr)}
+}
+
+/* ════════════════════════════════════════════════
+   LARGE TABLET  ≥ 900px
+   3-column cards, wider hand grid
+   ════════════════════════════════════════════════ */
+@media(min-width:900px){
+  .cards-area{grid-template-columns:repeat(3,1fr)}
+  .hand-grid{grid-template-columns:repeat(4,1fr)}
+  .hand-col:nth-child(even){border-right:1px solid var(--border)}
+  .hand-col:nth-child(4n){border-right:none}
+  .hand-col:nth-last-child(-n+2){border-bottom:1px solid var(--border)}
+  .hand-col:nth-last-child(-n+4){border-bottom:none}
+}
+
+/* ════════════════════════════════════════════════
+   DESKTOP  ≥ 1100px
+   Sidebar nav replaces bottom tab bar
+   ════════════════════════════════════════════════ */
+@media(min-width:1100px){
+  :root{--sidebar-w:200px;--tab-h:0px}
+
+  #screen-main{flex-direction:row}
+
+  /* sidebar replaces bottom bar */
+  #tab-bar{
+    flex-direction:column;
+    width:var(--sidebar-w);flex-shrink:0;
+    height:100%;border-top:none;border-right:1px solid var(--border);
+    padding-bottom:0;order:0;
+    justify-content:flex-start;padding-top:12px}
+
+  /* logo area at top of sidebar */
+  #tab-bar::before{
+    content:'♠ H&F';
+    display:block;
+    font-size:.85rem;font-weight:800;color:var(--accent2);
+    padding:4px 20px 20px;letter-spacing:.5px;flex-shrink:0}
+
+  .tab-btn{
+    flex:none;flex-direction:row;justify-content:flex-start;
+    width:100%;padding:12px 20px;gap:12px;min-height:48px;
+    border-radius:0}
+  .tab-btn.active{
+    color:var(--accent2);background:rgba(124,58,237,.12);
+    border-right:2px solid var(--accent2)}
+  .tab-btn svg{width:18px;height:18px;flex-shrink:0}
+  .tab-label{font-size:.84rem;font-weight:600;text-transform:none;letter-spacing:0}
+
+  /* sidebar bottom actions */
+  .sidebar-foot{
+    margin-top:auto;padding:16px;border-top:1px solid var(--border);display:flex;
+    flex-direction:column;gap:8px}
+
+  .tab-content{border-left:none}
+
+  /* cards area: 2-col by default on desktop, up to 4 for many players */
+  .cards-area{grid-template-columns:repeat(2,1fr);padding:16px;gap:12px}
+
+  /* wider action bar padding on desktop */
+  .action-bar{padding:12px 16px}
+
+  /* toast doesn't need to clear bottom tab bar on desktop */
+  #toast{bottom:20px}
+
+  /* game header more generous */
+  .game-header{padding:14px 20px 10px}
+  .rounds-list{padding:16px}
+  .rules-scroll{padding:16px}
+  .settings-scroll{padding:16px}
+}
+
+/* ════════════════════════════════════════════════
+   WIDE DESKTOP  ≥ 1400px
+   3 player cards per row
+   ════════════════════════════════════════════════ */
+@media(min-width:1400px){
+  .cards-area{grid-template-columns:repeat(3,1fr)}
+}
+
+/* ════════════════════════════════════════════════
+   LANDSCAPE PHONE  (short + wide)
+   Side-by-side cards, no wasted vertical space
+   ════════════════════════════════════════════════ */
+@media(orientation:landscape)and(max-height:520px){
+  .game-header{padding:6px 14px}
+  .round-meta{margin-bottom:4px}
+  .cards-area{grid-template-columns:repeat(2,1fr);padding:6px;gap:6px}
+  .card-head{padding:8px 12px}
+  .card-body{padding:6px 10px 10px}
+  .chips{gap:4px;margin-bottom:8px}
+  .chip{height:34px}
+  .chip-btn{width:38px;height:34px}
+  .chip-val{width:38px;height:34px}
+  .chip-req{width:30px;height:34px}
+  .go-chip{height:34px}
+  .s-btn{height:34px}
+  .s-inp{height:34px}
+  .action-bar{padding:6px 10px calc(6px + var(--safe-b))}
+  .btn-undo,.btn-save{height:42px}
+}
 </style>
 </head>
 <body>
@@ -298,22 +542,35 @@ input[type=number]{text-align:center;font-family:'SF Mono',monospace;font-weight
 
 <script>
 // ─────────────────────────────────────────────────────────────
-// DEFAULTS & CONSTANTS
+// HAND RULES (per hand / round)
 // ─────────────────────────────────────────────────────────────
-const DEF = {
-  playerCount: 4,
-  playerNames: ['Alice','Bob','Carol','Dave','Eve','Frank'],
-  roundCount: 4,
-  roundMinimums: [50,90,120,150],
-  cleanBookPoints: 500,
-  dirtyBookPoints: 300,
-  goOutBonus: 100,
-  red3Points: 100,
-  black3Penalty: 100,
-  requireCleanBook: true,
-  requireDirtyBook: true,
-  black3PenaltyEnabled: true,
-  red3BonusEnabled: true,
+// Hand 1: Draw 3, Meld 90,  Go out 300, Need 3 clean, 3 dirty
+// Hand 2: Draw 4, Meld 120, Go out 400, Need 4 clean, 4 dirty
+// Hand 3: Draw 5, Meld 150, Go out 500, Need 5 clean, 5 dirty
+// Hand 4: Draw 6, Meld 180, Go out 600, Need 6 clean, 6 dirty
+//
+// Scoring (same all hands):
+//   Red 3s:          100 each
+//   Dirty book:      300 each
+//   Clean book:      500 each
+//   Book of 7s:     1000 each  (7 of same rank, natural)
+//   Book of Wilds:  1500 each  (all wilds / Jokers & 2s)
+//   Going out bonus: varies per hand
+//   Points of all cards: added as meld points (face value)
+
+const HAND_RULES = [
+  { hand:1, drawCount:3,  meldMin:90,  goOutBonus:300, reqClean:3, reqDirty:3 },
+  { hand:2, drawCount:4,  meldMin:120, goOutBonus:400, reqClean:4, reqDirty:4 },
+  { hand:3, drawCount:5,  meldMin:150, goOutBonus:500, reqClean:5, reqDirty:5 },
+  { hand:4, drawCount:6,  meldMin:180, goOutBonus:600, reqClean:6, reqDirty:6 },
+];
+
+const SCORING = {
+  red3:       100,
+  dirtyBook:  300,
+  cleanBook:  500,
+  bookOf7s:  1000,
+  bookOfWilds:1500,
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -322,9 +579,10 @@ const DEF = {
 let S = {
   screen: 'setup',
   tab: 'game',
-  settings: JSON.parse(JSON.stringify(DEF)),
+  playerCount: 4,
+  playerNames: ['Alice','Bob','Carol','Dave','Eve','Frank'],
   rounds: [],
-  cur: null,   // currentRound: { roundNumber, scores[] }
+  cur: null,   // { roundNumber, scores[] }
   undo: [],
 };
 
@@ -332,32 +590,43 @@ let S = {
 // PERSIST
 // ─────────────────────────────────────────────────────────────
 function save() {
-  try { localStorage.setItem('hnf', JSON.stringify({
-    screen: S.screen, settings: S.settings, rounds: S.rounds, cur: S.cur
+  try { localStorage.setItem('hnf2', JSON.stringify({
+    screen: S.screen,
+    playerCount: S.playerCount,
+    playerNames: S.playerNames,
+    rounds: S.rounds,
+    cur: S.cur,
+    tab: S.tab,
   })); } catch(e) {}
 }
 function load() {
   try {
-    const d = JSON.parse(localStorage.getItem('hnf') || 'null');
+    const d = JSON.parse(localStorage.getItem('hnf2') || 'null');
     if (!d) return;
-    S.screen   = d.screen   || 'setup';
-    S.settings = d.settings || JSON.parse(JSON.stringify(DEF));
-    S.rounds   = d.rounds   || [];
-    S.cur      = d.cur      || null;
+    S.screen      = d.screen      || 'setup';
+    S.playerCount = d.playerCount || 4;
+    S.playerNames = d.playerNames || ['Alice','Bob','Carol','Dave','Eve','Frank'];
+    S.rounds      = d.rounds      || [];
+    S.cur         = d.cur         || null;
+    S.tab         = d.tab         || 'game';
   } catch(e) {}
 }
 
 // ─────────────────────────────────────────────────────────────
 // CALCULATION
 // ─────────────────────────────────────────────────────────────
-function calcRound(sc, cfg) {
+function handRule(roundNumber) {
+  return HAND_RULES[Math.min(roundNumber - 1, HAND_RULES.length - 1)];
+}
+function calcRound(sc, roundNumber) {
+  const rule = handRule(roundNumber);
   let t = sc.meldPoints;
-  if (cfg.red3BonusEnabled)      t += sc.red3Count         * cfg.red3Points;
-  if (cfg.black3PenaltyEnabled)  t -= sc.black3PenaltyCount * cfg.black3Penalty;
-  t += sc.cleanBooks * cfg.cleanBookPoints;
-  t += sc.dirtyBooks * cfg.dirtyBookPoints;
-  if (sc.wentOut) t += cfg.goOutBonus;
-  t -= sc.leftoverPoints;
+  t += sc.red3Count       * SCORING.red3;
+  t += sc.cleanBooks      * SCORING.cleanBook;
+  t += sc.dirtyBooks      * SCORING.dirtyBook;
+  t += sc.bookOf7s        * SCORING.bookOf7s;
+  t += sc.bookOfWilds     * SCORING.bookOfWilds;
+  if (sc.wentOut) t += rule.goOutBonus;
   return t;
 }
 function runningTotal(pid, rounds) {
@@ -367,17 +636,29 @@ function runningTotal(pid, rounds) {
   }, 0);
 }
 function blankScore(pid) {
-  return { playerId:pid, red3Count:0, black3PenaltyCount:0,
-    meldPoints:0, cleanBooks:0, dirtyBooks:0, wentOut:false,
-    leftoverPoints:0, roundTotal:0 };
+  return {
+    playerId:pid,
+    meldPoints:0,
+    red3Count:0,
+    cleanBooks:0,
+    dirtyBooks:0,
+    bookOf7s:0,
+    bookOfWilds:0,
+    wentOut:false,
+    roundTotal:0,
+  };
 }
 function recomputeTotals() {
   if (!S.cur) return;
-  S.cur.scores.forEach(sc => { sc.roundTotal = calcRound(sc, S.settings); });
+  S.cur.scores.forEach(sc => { sc.roundTotal = calcRound(sc, S.cur.roundNumber); });
+}
+function canGoOut(sc) {
+  const rule = handRule(S.cur.roundNumber);
+  return sc.cleanBooks >= rule.reqClean && sc.dirtyBooks >= rule.reqDirty;
 }
 function initRound() {
   const n = S.rounds.length + 1;
-  S.cur = { roundNumber:n, scores: range(S.settings.playerCount).map(blankScore) };
+  S.cur = { roundNumber:n, scores: range(S.playerCount).map(blankScore) };
   S.undo = [];
 }
 
@@ -387,14 +668,13 @@ function initRound() {
 const h = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const range = n => Array.from({length:n},(_,i)=>i);
 const $ = id => document.getElementById(id);
-const $$ = sel => document.querySelectorAll(sel);
 
 let _toastTimer;
 function toast(msg) {
   const t = $('toast');
   t.textContent = msg; t.classList.add('show');
   clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+  _toastTimer = setTimeout(() => t.classList.remove('show'), 1900);
 }
 
 function flash(pid) {
@@ -416,7 +696,7 @@ function closeModal() {
   const ov = $('modal-ov');
   if (ov) ov.remove();
 }
-function confirm(title, body, onOk, danger=true) {
+function confirmDialog(title, body, onOk, danger=true) {
   showModal(`<div class="modal-title">${h(title)}</div>
     <div class="modal-body">${h(body)}</div>
     <div class="modal-actions">
@@ -432,7 +712,7 @@ function adj(pid, field, delta) {
   const sc = S.cur.scores.find(s => s.playerId === pid);
   if (!sc) return;
   S.undo.push({pid, field, prev: sc[field]});
-  if (S.undo.length > 40) S.undo.shift();
+  if (S.undo.length > 60) S.undo.shift();
   sc[field] = Math.max(0, sc[field] + delta);
   recomputeTotals(); save(); patchCard(pid); flash(pid);
 }
@@ -447,19 +727,16 @@ function toggleOut(pid) {
   const sc = S.cur.scores.find(s => s.playerId === pid);
   if (!sc) return;
   const next = !sc.wentOut;
-  if (next && !canGoOut(sc)) { toast('Go-out requirements not met'); return; }
+  if (next && !canGoOut(sc)) {
+    const rule = handRule(S.cur.roundNumber);
+    toast(`Need ${rule.reqClean} clean & ${rule.reqDirty} dirty books to go out`);
+    return;
+  }
   S.undo.push({pid, field:'wentOut', prev: sc.wentOut});
   if (next) S.cur.scores.forEach(s => { s.wentOut = false; });
   sc.wentOut = next;
   recomputeTotals(); save();
-  // full re-render needed so all go-out chips update
-  renderGame();
-}
-function canGoOut(sc) {
-  const cfg = S.settings;
-  if (cfg.requireCleanBook && sc.cleanBooks < 1) return false;
-  if (cfg.requireDirtyBook && sc.dirtyBooks < 1) return false;
-  return true;
+  renderGame(); // full re-render so all go-out chips update
 }
 function undoLast() {
   const item = S.undo.pop();
@@ -477,7 +754,7 @@ function undoLast() {
 function trySaveRound() {
   const someOut = S.cur.scores.some(s => s.wentOut);
   if (!someOut) {
-    confirm('No one went out',
+    confirmDialog('No one went out',
       'No player is marked as going out. Save round anyway?',
       doSaveRound, false);
   } else { doSaveRound(); }
@@ -490,19 +767,29 @@ function doSaveRound() {
 }
 function showRoundSummary() {
   const round = S.rounds[S.rounds.length - 1];
-  const cfg = S.settings;
-  const isLast = round.roundNumber >= cfg.roundCount;
+  const isLast = round.roundNumber >= 4;
+
+  // find winner of this round
+  const maxRound = Math.max(...round.scores.map(s => s.roundTotal));
+
   const rows = round.scores.map(sc => {
     const running = runningTotal(sc.playerId, S.rounds);
     const cls = sc.roundTotal > 0 ? 'color:var(--green)' : sc.roundTotal < 0 ? 'color:var(--red)' : 'color:var(--dim)';
-    return `<div class="sum-row">
-      <div><div class="sum-name">${h(cfg.playerNames[sc.playerId] || 'P'+(sc.playerId+1))}</div></div>
-      <div><div class="sum-delta" style="${cls}">${sc.roundTotal>0?'+':''}${sc.roundTotal}</div>
-      <div class="sum-run">Total: ${running}</div></div>
+    const isHandWinner = sc.roundTotal === maxRound && maxRound > 0;
+    return `<div class="sum-row ${isHandWinner ? 'sum-winner' : ''}">
+      <div>
+        <div class="sum-name">${h(S.playerNames[sc.playerId] || 'P'+(sc.playerId+1))}</div>
+        ${sc.wentOut ? '<div style="font-size:.65rem;color:var(--gold)">★ Went Out</div>' : ''}
+      </div>
+      <div>
+        <div class="sum-delta" style="${isHandWinner ? '' : cls}">${sc.roundTotal>0?'+':''}${sc.roundTotal}</div>
+        <div class="sum-run">Total: ${running.toLocaleString()}</div>
+      </div>
     </div>`;
   }).join('');
-  const nextLabel = isLast ? 'View Scores' : `Start Round ${round.roundNumber + 1}`;
-  showModal(`<div class="modal-title">Round ${round.roundNumber} Complete</div>
+
+  const nextLabel = isLast ? '🏆 Final Scores' : `Start Hand ${round.roundNumber + 1} →`;
+  showModal(`<div class="modal-title">Hand ${round.roundNumber} Complete</div>
     <div class="summary-rows">${rows}</div>
     <div class="modal-actions">
       <button class="btn-ok" onclick="closeModal();afterRound(${isLast})">${nextLabel}</button>
@@ -514,7 +801,7 @@ function afterRound(isLast) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// PARTIAL DOM PATCH (avoids full re-render on every tap)
+// PARTIAL DOM PATCH
 // ─────────────────────────────────────────────────────────────
 function patchCard(pid) {
   const sc = S.cur.scores.find(s => s.playerId === pid);
@@ -524,70 +811,105 @@ function patchCard(pid) {
   const rt = sc.roundTotal;
   const rtEl = card.querySelector('.rt-num');
   if (rtEl) {
-    rtEl.textContent = (rt > 0 ? '+' : '') + rt;
+    rtEl.textContent = (rt > 0 ? '+' : '') + rt.toLocaleString();
     rtEl.className = 'rt-num ' + (rt > 0 ? 'pos' : rt < 0 ? 'neg' : 'zero');
   }
   const run = runningTotal(pid, S.rounds) + rt;
   const runEl = card.querySelector('.p-running b');
-  if (runEl) runEl.textContent = run;
+  if (runEl) runEl.textContent = run.toLocaleString();
 
+  // update chip vals
   card.querySelectorAll('.chip').forEach(chip => {
     const v = chip.querySelector('.chip-val');
+    const r = chip.querySelector('.chip-req');
     if (!v) return;
-    if (chip.classList.contains('r3'))    v.textContent = sc.red3Count;
-    if (chip.classList.contains('b3'))    v.textContent = sc.black3PenaltyCount;
-    if (chip.classList.contains('clean')) v.textContent = sc.cleanBooks;
-    if (chip.classList.contains('dirty')) v.textContent = sc.dirtyBooks;
+    let val = 0;
+    if (chip.classList.contains('r3'))     val = sc.red3Count;
+    if (chip.classList.contains('clean'))  val = sc.cleanBooks;
+    if (chip.classList.contains('dirty'))  val = sc.dirtyBooks;
+    if (chip.classList.contains('sevens')) val = sc.bookOf7s;
+    if (chip.classList.contains('wilds'))  val = sc.bookOfWilds;
+    v.textContent = val;
+    if (r) {
+      const req = parseInt(r.dataset.req || '0');
+      r.className = 'chip-req' + (val >= req ? ' met' : '');
+    }
   });
 
-  const inps = card.querySelectorAll('.s-inp');
-  if (inps[0] && document.activeElement !== inps[0]) inps[0].value = sc.meldPoints;
-  if (inps[1] && document.activeElement !== inps[1]) inps[1].value = sc.leftoverPoints;
+  // update meld input
+  const meldInp = card.querySelector('.s-inp[data-field="meldPoints"]');
+  if (meldInp && document.activeElement !== meldInp) meldInp.value = sc.meldPoints;
+
+  // update req bar
+  const reqBar = card.querySelector('.req-bar');
+  if (reqBar) reqBar.innerHTML = buildReqBar(sc);
+
+  // update go chip
+  const goChip = card.querySelector('.go-chip');
+  if (goChip) {
+    const canGo = canGoOut(sc);
+    const out = sc.wentOut;
+    goChip.className = 'go-chip' + (out ? ' active' : canGo ? '' : ' blocked');
+    goChip.textContent = out ? '★ Went Out' : '☆ Go Out';
+  }
 
   patchLeaderboard();
   const undoBtn = document.querySelector('.btn-undo');
   if (undoBtn) undoBtn.disabled = S.undo.length === 0;
 }
+
 function patchLeaderboard() {
   const strip = document.querySelector('.lb-strip');
   if (!strip || !S.cur) return;
   strip.innerHTML = lbHTML();
 }
 function lbHTML() {
-  const cfg = S.settings;
   return S.cur.scores
-    .map(sc => ({ name: cfg.playerNames[sc.playerId], total: runningTotal(sc.playerId, S.rounds) + sc.roundTotal }))
+    .map(sc => ({ name: S.playerNames[sc.playerId]||'P'+(sc.playerId+1), total: runningTotal(sc.playerId, S.rounds) + sc.roundTotal }))
     .sort((a,b) => b.total - a.total)
     .map((p, i) => `<div class="lb-item ${i===0?'leader':''}">
       <div class="lb-name">${h(p.name)}</div>
-      <div class="lb-score">${p.total}</div>
+      <div class="lb-score">${p.total.toLocaleString()}</div>
     </div>`).join('');
+}
+
+function buildReqBar(sc) {
+  const rule = handRule(S.cur.roundNumber);
+  const items = [
+    { label: `${rule.reqClean} Clean`, met: sc.cleanBooks >= rule.reqClean },
+    { label: `${rule.reqDirty} Dirty`, met: sc.dirtyBooks >= rule.reqDirty },
+  ];
+  return items.map(it =>
+    `<div class="req-item">
+      <div class="req-dot ${it.met?'met':''}"></div>
+      <span class="req-label ${it.met?'met':''}">${it.label}</span>
+    </div>`
+  ).join('');
 }
 
 // ─────────────────────────────────────────────────────────────
 // RENDER: SETUP
 // ─────────────────────────────────────────────────────────────
 function renderSetup() {
-  const cfg = S.settings;
   const hasGame = S.rounds.length > 0 || S.cur;
   const counts = [2,3,4,5,6].map(n =>
-    `<button class="count-btn ${cfg.playerCount===n?'active':''}" onclick="setPlayerCount(${n})">${n}</button>`
+    `<button class="count-btn ${S.playerCount===n?'active':''}" onclick="setPlayerCount(${n})">${n}</button>`
   ).join('');
-  const nameInputs = range(cfg.playerCount).map(i =>
+  const nameInputs = range(S.playerCount).map(i =>
     `<input type="text" class="pname" data-i="${i}"
-      value="${h(cfg.playerNames[i] || 'Player '+(i+1))}" placeholder="Player ${i+1}" maxlength="16">`
+      value="${h(S.playerNames[i] || 'Player '+(i+1))}" placeholder="Player ${i+1}" maxlength="16">`
   ).join('');
   return `<div id="screen-setup">
     <div class="logo-suits">♠ ♥ ♣ ♦</div>
     <div class="logo-title">Hand &amp; Foot</div>
-    <div class="logo-sub">Score Keeper</div>
+    <div class="logo-sub">Progressive Score Keeper • 4 Hands</div>
     <div class="setup-card">
       <div>
-        <div class="section-label">Number of players</div>
+        <div class="section-label">Number of players / teams</div>
         <div class="count-row">${counts}</div>
       </div>
       <div>
-        <div class="section-label">Player names</div>
+        <div class="section-label">Player / Team names</div>
         <div class="names-grid">${nameInputs}</div>
       </div>
       <button class="btn-primary" onclick="startGame()">Start Game</button>
@@ -600,77 +922,60 @@ function renderSetup() {
 // RENDER: PLAYER CARD
 // ─────────────────────────────────────────────────────────────
 function renderCard(sc) {
-  const cfg = S.settings;
-  const name = cfg.playerNames[sc.playerId] || 'P'+(sc.playerId+1);
+  const name = S.playerNames[sc.playerId] || 'P'+(sc.playerId+1);
   const rt = sc.roundTotal;
   const rtClass = rt > 0 ? 'pos' : rt < 0 ? 'neg' : 'zero';
-  const rtStr = (rt > 0 ? '+' : '') + rt;
+  const rtStr = (rt > 0 ? '+' : '') + rt.toLocaleString();
   const running = runningTotal(sc.playerId, S.rounds) + rt;
   const pid = sc.playerId;
+  const rule = handRule(S.cur.roundNumber);
+  const canGo = canGoOut(sc);
 
-  const r3chip = cfg.red3BonusEnabled ? `
-    <div class="chip r3">
-      <span class="chip-lbl">🔴 R3</span>
-      <button class="chip-btn" ontouchstart="" onclick="adj(${pid},'red3Count',-1)">−</button>
-      <span class="chip-val">${sc.red3Count}</span>
-      <button class="chip-btn" ontouchstart="" onclick="adj(${pid},'red3Count',1)">+</button>
-    </div>` : '';
-
-  const b3chip = cfg.black3PenaltyEnabled ? `
-    <div class="chip b3">
-      <span class="chip-lbl" style="color:var(--muted)">⚫ B3</span>
-      <button class="chip-btn" ontouchstart="" onclick="adj(${pid},'black3PenaltyCount',-1)">−</button>
-      <span class="chip-val">${sc.black3PenaltyCount}</span>
-      <button class="chip-btn" ontouchstart="" onclick="adj(${pid},'black3PenaltyCount',1)">+</button>
-    </div>` : '';
+  const chipWith = (cls, emoji, label, field, reqVal) => {
+    const val = sc[field];
+    const met = reqVal !== null && val >= reqVal;
+    const reqHtml = reqVal !== null
+      ? `<span class="chip-req ${met?'met':''}" data-req="${reqVal}">/${reqVal}</span>` : '';
+    return `<div class="chip ${cls}">
+      <span class="chip-lbl">${emoji} ${label}</span>
+      <button class="chip-btn" ontouchstart="" onclick="adj(${pid},'${field}',-1)">−</button>
+      <span class="chip-val">${val}</span>
+      ${reqHtml}
+      <button class="chip-btn" ontouchstart="" onclick="adj(${pid},'${field}',1)">+</button>
+    </div>`;
+  };
 
   return `<div class="player-card ${sc.wentOut?'went-out':''}" data-pid="${pid}">
     <div class="card-head">
       <div>
         <div class="p-name">${h(name)}</div>
-        <div class="p-running">Total: <b>${running}</b></div>
+        <div class="p-running">Total: <b>${running.toLocaleString()}</b></div>
       </div>
       <div class="rt-wrap">
         <div class="rt-num ${rtClass}">${rtStr}</div>
-        <div class="rt-lbl">this round</div>
+        <div class="rt-lbl">this hand</div>
       </div>
     </div>
     <div class="card-body">
+      <div class="req-bar">${buildReqBar(sc)}</div>
       <div class="chips">
-        ${r3chip}${b3chip}
-        <div class="chip clean">
-          <span class="chip-lbl">♣ Clean</span>
-          <button class="chip-btn" ontouchstart="" onclick="adj(${pid},'cleanBooks',-1)">−</button>
-          <span class="chip-val">${sc.cleanBooks}</span>
-          <button class="chip-btn" ontouchstart="" onclick="adj(${pid},'cleanBooks',1)">+</button>
-        </div>
-        <div class="chip dirty">
-          <span class="chip-lbl">♦ Dirty</span>
-          <button class="chip-btn" ontouchstart="" onclick="adj(${pid},'dirtyBooks',-1)">−</button>
-          <span class="chip-val">${sc.dirtyBooks}</span>
-          <button class="chip-btn" ontouchstart="" onclick="adj(${pid},'dirtyBooks',1)">+</button>
-        </div>
-        <button class="go-chip ${sc.wentOut?'active':''}" ontouchstart="" onclick="toggleOut(${pid})">
+        ${chipWith('r3',    '🔴', 'Red 3s',       'red3Count',   null)}
+        ${chipWith('clean', '♣',  'Clean',         'cleanBooks',  rule.reqClean)}
+        ${chipWith('dirty', '♦',  'Dirty',         'dirtyBooks',  rule.reqDirty)}
+        ${chipWith('sevens','7️⃣', 'Book of 7s',   'bookOf7s',    null)}
+        ${chipWith('wilds', '🃏', 'Book of Wilds', 'bookOfWilds', null)}
+        <button class="go-chip ${sc.wentOut?'active':canGo?'':'blocked'}" ontouchstart="" onclick="toggleOut(${pid})">
           ${sc.wentOut ? '★ Went Out' : '☆ Go Out'}
         </button>
       </div>
       <div class="steppers">
         <div class="stepper-row">
-          <span class="stepper-lbl">Meld Points</span>
+          <span class="stepper-lbl">Points of all cards (meld)</span>
           <div class="stepper">
             <button class="s-btn" ontouchstart="" onclick="adj(${pid},'meldPoints',-10)">−</button>
-            <input class="s-inp" type="number" min="0" value="${sc.meldPoints}"
+            <input class="s-inp" data-field="meldPoints" type="number" min="0" value="${sc.meldPoints}"
               onchange="setVal(${pid},'meldPoints',this.value)" onfocus="this.select()">
             <button class="s-btn" ontouchstart="" onclick="adj(${pid},'meldPoints',10)">+</button>
-          </div>
-        </div>
-        <div class="stepper-row">
-          <span class="stepper-lbl">Leftover Cards (deducted)</span>
-          <div class="stepper">
-            <button class="s-btn" ontouchstart="" onclick="adj(${pid},'leftoverPoints',-5)">−</button>
-            <input class="s-inp" type="number" min="0" value="${sc.leftoverPoints}"
-              onchange="setVal(${pid},'leftoverPoints',this.value)" onfocus="this.select()">
-            <button class="s-btn" ontouchstart="" onclick="adj(${pid},'leftoverPoints',5)">+</button>
           </div>
         </div>
       </div>
@@ -679,63 +984,72 @@ function renderCard(sc) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// RENDER: GAME TAB
+// RENDER: GAME TAB  (returns HTML string)
 // ─────────────────────────────────────────────────────────────
-function renderGame() {
+function renderGameHTML() {
   if (!S.cur) return `<div class="empty"><div class="empty-icon">♠</div><p>No active game</p></div>`;
-  const cfg = S.settings;
-  const rn = S.cur.roundNumber;
-  const minPts = cfg.roundMinimums[rn-1] ?? cfg.roundMinimums[cfg.roundMinimums.length-1];
+  const rule = handRule(S.cur.roundNumber);
   const cards = S.cur.scores.map(renderCard).join('');
   return `<div id="tab-game" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
     <div class="game-header">
       <div class="round-meta">
-        <span class="round-badge">Round ${rn}</span>
-        <span class="round-min-label">Min meld: ${minPts} pts</span>
+        <span class="round-badge">Hand ${S.cur.roundNumber} of 4</span>
+        <span class="round-pill">Draw <b>${rule.drawCount}</b></span>
+        <span class="round-pill">Meld <b>${rule.meldMin}+</b></span>
+        <span class="round-pill">Go out <b>+${rule.goOutBonus}</b></span>
       </div>
       <div class="lb-strip">${lbHTML()}</div>
     </div>
     <div class="cards-area">${cards}</div>
     <div class="action-bar">
       <button class="btn-undo" ${S.undo.length?'':'disabled'} onclick="undoLast()">↩ Undo</button>
-      <button class="btn-save" onclick="trySaveRound()">Save Round ${rn} →</button>
+      <button class="btn-save" onclick="trySaveRound()">Save Hand ${S.cur.roundNumber} →</button>
     </div>
   </div>`;
+}
+
+function renderGame() {
+  // replace just the tab-content area if possible
+  const tc = document.querySelector('.tab-content');
+  if (tc) { tc.innerHTML = renderGameHTML(); return; }
+  render();
 }
 
 // ─────────────────────────────────────────────────────────────
 // RENDER: REVIEW TAB
 // ─────────────────────────────────────────────────────────────
 function renderReview() {
-  const cfg = S.settings;
   if (S.rounds.length === 0) return `
     <div id="tab-review" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
-      <div class="tab-header">Round History</div>
+      <div class="tab-header">Hand History</div>
       <div class="empty"><div class="empty-icon">📋</div>
-        <p>No completed rounds yet.<br>Save a round to see history here.</p></div>
+        <p>No completed hands yet.<br>Save a hand to see history here.</p></div>
     </div>`;
 
   const roundRows = S.rounds.map((round, ri) => {
+    const rule = handRule(round.roundNumber);
     const scoreChips = round.scores.map(sc =>
-      `<span class="rr-ps">${h(cfg.playerNames[sc.playerId]||'P'+(sc.playerId+1))}: <b>${sc.roundTotal>0?'+':''}${sc.roundTotal}</b></span>`
+      `<span class="rr-ps">${h(S.playerNames[sc.playerId]||'P'+(sc.playerId+1))}: <b>${sc.roundTotal>0?'+':''}${sc.roundTotal.toLocaleString()}</b></span>`
     ).join('');
-    const thCols = round.scores.map(sc => `<th>${h(cfg.playerNames[sc.playerId]||'P'+(sc.playerId+1))}</th>`).join('');
+    const thCols = round.scores.map(sc => `<th>${h(S.playerNames[sc.playerId]||'P'+(sc.playerId+1))}</th>`).join('');
+
     const rows = [
-      ['Meld',       sc => sc.meldPoints || '—'],
-      ['Clean books',sc => sc.cleanBooks ? `${sc.cleanBooks} (+${sc.cleanBooks*cfg.cleanBookPoints})` : '—'],
-      ['Dirty books',sc => sc.dirtyBooks ? `${sc.dirtyBooks} (+${sc.dirtyBooks*cfg.dirtyBookPoints})` : '—'],
-      ['Red 3s',     sc => sc.red3Count ? `${sc.red3Count} (+${sc.red3Count*cfg.red3Points})` : '—'],
-      ['Black 3s',   sc => sc.black3PenaltyCount ? `${sc.black3PenaltyCount} (−${sc.black3PenaltyCount*cfg.black3Penalty})` : '—'],
-      ['Went out',   sc => sc.wentOut ? `+${cfg.goOutBonus}` : '—'],
-      ['Leftover',   sc => sc.leftoverPoints ? `−${sc.leftoverPoints}` : '—'],
+      ['Red 3s (×100)',       sc => sc.red3Count       ? `${sc.red3Count} (+${(sc.red3Count*SCORING.red3).toLocaleString()})`            : '—'],
+      ['Clean books (×500)',  sc => sc.cleanBooks      ? `${sc.cleanBooks} (+${(sc.cleanBooks*SCORING.cleanBook).toLocaleString()})`     : '—'],
+      ['Dirty books (×300)',  sc => sc.dirtyBooks      ? `${sc.dirtyBooks} (+${(sc.dirtyBooks*SCORING.dirtyBook).toLocaleString()})`    : '—'],
+      ['Book of 7s (×1000)', sc => sc.bookOf7s        ? `${sc.bookOf7s} (+${(sc.bookOf7s*SCORING.bookOf7s).toLocaleString()})`         : '—'],
+      ['Book of Wilds (×1500)',sc=>sc.bookOfWilds      ? `${sc.bookOfWilds} (+${(sc.bookOfWilds*SCORING.bookOfWilds).toLocaleString()})`: '—'],
+      ['Going out',          sc => sc.wentOut          ? `+${rule.goOutBonus}`                                                          : '—'],
+      ['Card points (meld)', sc => sc.meldPoints       ? sc.meldPoints.toLocaleString()                                                 : '—'],
     ].map(([lbl,fn]) =>
       `<tr><td>${lbl}</td>${round.scores.map(sc=>`<td>${fn(sc)}</td>`).join('')}</tr>`
     ).join('');
-    const totRow = `<tr class="tot"><td>Total</td>${round.scores.map(sc=>`<td>${sc.roundTotal>0?'+':''}${sc.roundTotal}</td>`).join('')}</tr>`;
+    const totRow = `<tr class="tot"><td>Total</td>${round.scores.map(sc=>`<td>${sc.roundTotal>0?'+':''}${sc.roundTotal.toLocaleString()}</td>`).join('')}</tr>`;
     const isLast = ri === S.rounds.length - 1;
+
     return `<div class="round-row" id="rr-${ri}">
       <div class="rr-head" onclick="toggleRR(${ri})">
-        <span class="rr-num">Round ${round.roundNumber}</span>
+        <span class="rr-num">Hand ${round.roundNumber} <span style="font-size:.65rem;color:var(--muted);font-weight:400">Draw ${rule.drawCount} · Meld ${rule.meldMin}+</span></span>
         <div class="rr-scores">${scoreChips}</div>
         <span class="rr-chevron">▼</span>
       </div>
@@ -747,28 +1061,53 @@ function renderReview() {
           </table>
         </div>
         <div class="rr-actions">
-          <button class="btn-sm btn-sm-plain" onclick="editRound(${ri})">Edit Round</button>
+          <button class="btn-sm btn-sm-plain" onclick="editRound(${ri})">Edit Hand</button>
           ${isLast ? `<button class="btn-sm btn-sm-danger" onclick="deleteRound(${ri})">Delete</button>` : ''}
         </div>
       </div>
     </div>`;
   }).join('');
 
-  const totals = range(cfg.playerCount)
-    .map(i => ({ name: cfg.playerNames[i]||'P'+(i+1), total: runningTotal(i, S.rounds) }))
+  // cumulative subtotals row (per scoring sheet)
+  const subtotalRows = S.rounds.map((_, ri) => {
+    const cols = range(S.playerCount).map(pid => {
+      const sub = S.rounds.slice(0, ri+1).reduce((s,r) => {
+        const sc = r.scores.find(x => x.playerId === pid);
+        return s + (sc ? sc.roundTotal : 0);
+      }, 0);
+      return `<td>${sub.toLocaleString()}</td>`;
+    }).join('');
+    return `<tr><td style="color:var(--muted)">After Hand ${ri+1}</td>${cols}</tr>`;
+  });
+
+  const totals = range(S.playerCount)
+    .map(i => ({ name: S.playerNames[i]||'P'+(i+1), total: runningTotal(i, S.rounds) }))
     .sort((a,b) => b.total - a.total);
   const totalsHTML = totals.map((p,i) =>
     `<div class="totals-row ${i===0?'leader':''}">
-      <span class="totals-name">${h(p.name)}</span>
-      <span class="totals-score">${p.total}</span>
+      <span class="totals-name">${i===0?'🏆 ':''} ${h(p.name)}</span>
+      <span class="totals-score">${p.total.toLocaleString()}</span>
     </div>`).join('');
 
+  // cumulative totals table
+  const thNames = range(S.playerCount).map(i => `<th>${h(S.playerNames[i]||'P'+(i+1))}</th>`).join('');
+  const cumTable = `<div class="totals-card" style="margin-top:0">
+    <div class="totals-title">Cumulative Subtotals</div>
+    <div style="overflow-x:auto">
+      <table class="detail-table">
+        <thead><tr><th></th>${thNames}</tr></thead>
+        <tbody>${subtotalRows.join('')}</tbody>
+      </table>
+    </div>
+  </div>`;
+
   return `<div id="tab-review" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
-    <div class="tab-header">Round History</div>
+    <div class="tab-header">Hand History</div>
     <div class="rounds-list">
       ${roundRows}
+      ${cumTable}
       <div class="totals-card">
-        <div class="totals-title">Running Totals</div>
+        <div class="totals-title">Grand Total</div>
         ${totalsHTML}
       </div>
     </div>
@@ -776,82 +1115,70 @@ function renderReview() {
 }
 
 // ─────────────────────────────────────────────────────────────
-// RENDER: SETTINGS TAB
+// RENDER: RULES TAB
 // ─────────────────────────────────────────────────────────────
-function renderSettings() {
-  const cfg = S.settings;
-  const tog = (key) => `<label class="tog"><input type="checkbox" ${cfg[key]?'checked':''}
-    onchange="setSetting('${key}',this.checked)"><span class="tog-track"></span></label>`;
-  const numRow = (label, hint, key, min, max, step) => `
-    <div class="s-row">
-      <div><div class="s-lbl">${label}</div>${hint?`<div class="s-hint">${hint}</div>`:''}</div>
-      <input class="s-inp-sm" type="number" min="${min}" max="${max}" step="${step}"
-        value="${cfg[key]}" onchange="setSetting('${key}',+this.value)" onfocus="this.select()">
-    </div>`;
-  const playerRows = range(cfg.playerCount).map(i => `
-    <div class="s-row">
-      <span class="s-lbl">Player ${i+1}</span>
-      <input type="text" style="width:130px;text-align:right" maxlength="16"
-        value="${h(cfg.playerNames[i]||'Player '+(i+1))}"
-        oninput="state_setPlayerName(${i},this.value)">
-    </div>`).join('');
-  const minCells = cfg.roundMinimums.map((v,i) => `
-    <div class="min-cell">
-      <label>Rd ${i+1}</label>
-      <input type="number" min="0" step="10" value="${v}"
-        onchange="setRoundMin(${i},+this.value)" onfocus="this.select()">
+function renderRules() {
+  const handCards = HAND_RULES.map(r => `
+    <div class="hand-col">
+      <div class="hand-num">Hand ${r.hand}</div>
+      <div class="hand-stat"><span class="hand-stat-lbl">Draw</span><span class="hand-stat-val">${r.drawCount} cards</span></div>
+      <div class="hand-stat"><span class="hand-stat-lbl">Meld min</span><span class="hand-stat-val">${r.meldMin} pts</span></div>
+      <div class="hand-stat"><span class="hand-stat-lbl">Clean req</span><span class="hand-stat-val">${r.reqClean}</span></div>
+      <div class="hand-stat"><span class="hand-stat-lbl">Dirty req</span><span class="hand-stat-val">${r.reqDirty}</span></div>
+      <div class="hand-stat"><span class="hand-stat-lbl">Go out</span><span class="hand-stat-val gold">+${r.goOutBonus}</span></div>
     </div>`).join('');
 
-  return `<div id="tab-settings" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
-    <div class="tab-header">Settings &amp; Rules</div>
-    <div class="settings-scroll">
-      <div class="settings-section">
-        <div class="s-section-title">Players</div>
-        ${playerRows}
-        <div class="s-row">
-          <span class="s-lbl">Number of rounds</span>
-          <input class="s-inp-sm" type="number" min="1" max="20" step="1"
-            value="${cfg.roundCount}" onchange="setSetting('roundCount',+this.value)" onfocus="this.select()">
+  const scoring = [
+    { color:'var(--red)',    emoji:'🔴', label:'Red 3',           val:'+100 each' },
+    { color:'var(--green)',  emoji:'♣',  label:'Clean Book',      val:'+500 each' },
+    { color:'var(--blue)',   emoji:'♦',  label:'Dirty Book',      val:'+300 each' },
+    { color:'var(--gold)',   emoji:'7️⃣', label:'Book of 7s',     val:'+1,000 each' },
+    { color:'var(--orange)', emoji:'🃏', label:'Book of Wilds/2s',val:'+1,500 each' },
+  ].map(s => `
+    <div class="scoring-row">
+      <div class="scoring-row-lbl">
+        <span class="score-dot" style="background:${s.color}"></span>
+        ${s.emoji} ${s.label}
+      </div>
+      <div class="scoring-row-val" style="color:${s.color}">${s.val}</div>
+    </div>`).join('');
+
+  return `<div id="tab-rules" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+    <div class="tab-header">Rules &amp; Scoring</div>
+    <div class="rules-scroll">
+      <div class="rules-section">
+        <div class="r-section-title">Per-Hand Requirements</div>
+        <div class="hand-grid">${handCards}</div>
+      </div>
+      <div class="rules-section">
+        <div class="r-section-title">Book &amp; Card Scoring</div>
+        <div class="scoring-rows">${scoring}
+          <div class="scoring-row">
+            <div class="scoring-row-lbl"><span class="score-dot" style="background:var(--accent2)"></span> Points of all cards</div>
+            <div class="scoring-row-val" style="color:var(--accent2)">face value</div>
+          </div>
+          <div class="scoring-row">
+            <div class="scoring-row-lbl"><span class="score-dot" style="background:var(--gold)"></span> Going out bonus</div>
+            <div class="scoring-row-val" style="color:var(--gold)">per hand (see above)</div>
+          </div>
         </div>
       </div>
-      <div class="settings-section">
-        <div class="s-section-title">Round Minimums (meld pts required)</div>
-        <div class="mins-grid">${minCells}</div>
-      </div>
-      <div class="settings-section">
-        <div class="s-section-title">Book &amp; Bonus Values</div>
-        ${numRow('Clean Book','All natural cards','cleanBookPoints',0,2000,50)}
-        ${numRow('Dirty Book','Includes wild cards','dirtyBookPoints',0,2000,50)}
-        ${numRow('Going Out Bonus','','goOutBonus',0,500,50)}
-      </div>
-      <div class="settings-section">
-        <div class="s-section-title">Special Cards</div>
-        ${numRow('Red 3 Bonus','Points each','red3Points',0,500,50)}
-        <div class="s-row"><div><div class="s-lbl">Red 3 bonus enabled</div></div>${tog('red3BonusEnabled')}</div>
-        ${numRow('Black 3 Penalty','Points each left in hand','black3Penalty',0,500,5)}
-        <div class="s-row"><div><div class="s-lbl">Black 3 penalty enabled</div></div>${tog('black3PenaltyEnabled')}</div>
-      </div>
-      <div class="settings-section">
-        <div class="s-section-title">Go-Out Requirements</div>
-        <div class="s-row">
-          <div><div class="s-lbl">Require ≥1 clean book</div></div>${tog('requireCleanBook')}
-        </div>
-        <div class="s-row">
-          <div><div class="s-lbl">Require ≥1 dirty book</div></div>${tog('requireDirtyBook')}
-        </div>
-      </div>
-      <div class="settings-section">
-        <div class="s-section-title">Quick Rules Reference</div>
-        <div class="help-body">
+      <div class="rules-section">
+        <div class="r-section-title">How to Play</div>
+        <div class="rules-note">
           <ul>
-            <li>Draw 2 cards, meld sets of same rank, discard to end turn</li>
-            <li>Clean book = 7 natural cards → +${cfg.cleanBookPoints} pts</li>
-            <li>Dirty book = 7 cards with wilds → +${cfg.dirtyBookPoints} pts</li>
-            <li>Empty your Hand to pick up your Foot</li>
-            <li>Go out by emptying Foot (+ required books met)</li>
-            <li>Going out bonus: +${cfg.goOutBonus} pts</li>
-            <li>Red 3s: +${cfg.red3Points} each &nbsp;|&nbsp; Jokers &amp; 2s are wild</li>
-            <li>Add meld + book pts, subtract leftover card pts</li>
+            <li><b>Deal:</b> Pick up 2 piles of 11. Give one right, one left. One is your Hand, set the other aside as your Foot.</li>
+            <li><b>Each turn:</b> Draw the required cards (Hand 1=3, Hand 2=4, Hand 3=5, Hand 4=6), meld sets of same rank, discard to end.</li>
+            <li><b>To lay down</b> you must meet the meld minimum for that hand.</li>
+            <li><b>To lay down</b> you must have at least 3 of each card to equal that number.</li>
+            <li><b>Clean book:</b> 7 natural cards of the same rank (no wilds).</li>
+            <li><b>Dirty book:</b> 7 cards including at least one wild (Joker or 2).</li>
+            <li><b>Book of 7s:</b> 7 cards of the "7" rank → 1,000 pts.</li>
+            <li><b>Book of Wilds/2s:</b> All wild cards → 1,500 pts.</li>
+            <li><b>Picking up Foot:</b> You must have laid every card in your Hand down first.</li>
+            <li><b>Going out:</b> Empty your Foot. Must have required clean &amp; dirty books for that hand.</li>
+            <li><b>Red 3s:</b> Lay them down immediately; worth +100 each.</li>
+            <li><b>Wilds</b> are Jokers and 2s.</li>
           </ul>
         </div>
       </div>
@@ -873,9 +1200,9 @@ function renderSettings() {
 // RENDER: TAB BAR
 // ─────────────────────────────────────────────────────────────
 const TABS = [
-  ['game',    'Game',    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>`],
-  ['review',  'History', `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>`],
-  ['settings','Rules',   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>`],
+  ['game',   'Game',    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>`],
+  ['review', 'History', `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>`],
+  ['rules',  'Rules',   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`],
 ];
 function renderTabBar() {
   return `<nav id="tab-bar">${TABS.map(([id,lbl,ico]) =>
@@ -890,9 +1217,9 @@ function renderTabBar() {
 function render() {
   const app = $('app');
   if (S.screen === 'setup') { app.innerHTML = renderSetup(); return; }
-  let tabHTML = S.tab === 'game' ? renderGame()
+  let tabHTML = S.tab === 'game'   ? renderGameHTML()
               : S.tab === 'review' ? renderReview()
-              : renderSettings();
+              : renderRules();
   app.innerHTML = `<div id="screen-main">
     <div class="tab-content">${tabHTML}</div>
     ${renderTabBar()}
@@ -900,21 +1227,18 @@ function render() {
 }
 
 // ─────────────────────────────────────────────────────────────
-// ACTIONS / EVENT HANDLERS
+// EVENT HANDLERS
 // ─────────────────────────────────────────────────────────────
 function switchTab(t) { S.tab = t; render(); }
 
 function setPlayerCount(n) {
-  S.settings.playerCount = n; save(); render();
-}
-function state_setPlayerName(i, v) {
-  S.settings.playerNames[i] = v; save();
+  S.playerCount = n; save(); render();
 }
 
 function startGame() {
-  $$('.pname').forEach(inp => {
+  document.querySelectorAll('.pname').forEach(inp => {
     const i = +inp.dataset.i;
-    S.settings.playerNames[i] = inp.value.trim() || 'Player '+(i+1);
+    S.playerNames[i] = inp.value.trim() || 'Player '+(i+1);
   });
   S.rounds = []; S.cur = null; S.undo = [];
   S.screen = 'game'; S.tab = 'game';
@@ -931,8 +1255,8 @@ function toggleRR(ri) {
   if (el) el.classList.toggle('open');
 }
 function editRound(ri) {
-  confirm('Edit Round',
-    `Reload Round ${S.rounds[ri].roundNumber} for editing? It will be removed from history until re-saved.`,
+  confirmDialog('Edit Hand',
+    `Reload Hand ${S.rounds[ri].roundNumber} for editing? It will be removed from history until re-saved.`,
     () => {
       S.cur = JSON.parse(JSON.stringify(S.rounds[ri]));
       S.rounds.splice(ri, 1);
@@ -941,16 +1265,13 @@ function editRound(ri) {
     }, false);
 }
 function deleteRound(ri) {
-  confirm('Delete Round',
-    `Permanently delete Round ${S.rounds[ri].roundNumber}?`,
+  confirmDialog('Delete Hand',
+    `Permanently delete Hand ${S.rounds[ri].roundNumber}?`,
     () => { S.rounds.splice(ri, 1); save(); render(); });
 }
 
-function setSetting(key, val) { S.settings[key] = val; save(); }
-function setRoundMin(i, val)  { S.settings.roundMinimums[i] = val; save(); }
-
 function newGameConfirm() {
-  confirm('New Game',
+  confirmDialog('New Game',
     'Clear all scores and start fresh? Export first if you want to keep this game.',
     () => { S.rounds=[]; S.cur=null; S.undo=[]; S.screen='setup'; save(); render(); });
 }
@@ -959,21 +1280,38 @@ function newGameConfirm() {
 // EXPORT
 // ─────────────────────────────────────────────────────────────
 function exportJSON() {
-  dl('handfootscore.json',
-    JSON.stringify({ exportedAt: new Date().toISOString(), settings: S.settings, rounds: S.rounds }, null, 2),
-    'application/json');
+  const out = {
+    exportedAt: new Date().toISOString(),
+    game: 'Progressive Hand and Foot',
+    players: range(S.playerCount).map(i => S.playerNames[i]||'P'+(i+1)),
+    hands: S.rounds.map(r => ({
+      hand: r.roundNumber,
+      scores: r.scores.map(sc => ({
+        player: S.playerNames[sc.playerId]||'P'+(sc.playerId+1),
+        meldPoints:  sc.meldPoints,
+        red3Count:   sc.red3Count,
+        cleanBooks:  sc.cleanBooks,
+        dirtyBooks:  sc.dirtyBooks,
+        bookOf7s:    sc.bookOf7s,
+        bookOfWilds: sc.bookOfWilds,
+        wentOut:     sc.wentOut,
+        handTotal:   sc.roundTotal,
+      }))
+    }))
+  };
+  dl('handfootscore.json', JSON.stringify(out, null, 2), 'application/json');
 }
 function exportCSV() {
-  const cfg = S.settings;
-  const names = range(cfg.playerCount).map(i => cfg.playerNames[i]||'P'+(i+1));
-  const header = ['Round',...names].join(',');
-  const rows = S.rounds.map(r =>
-    [r.roundNumber, ...range(cfg.playerCount).map(i => {
+  const names = range(S.playerCount).map(i => S.playerNames[i]||'P'+(i+1));
+  const header = ['Hand', 'Draw', 'Meld Min', ...names].join(',');
+  const rows = S.rounds.map(r => {
+    const rule = handRule(r.roundNumber);
+    return [r.roundNumber, rule.drawCount, rule.meldMin, ...range(S.playerCount).map(i => {
       const sc = r.scores.find(s => s.playerId===i);
       return sc ? sc.roundTotal : 0;
-    })].join(',')
-  );
-  const totals = ['Total',...range(cfg.playerCount).map(i => runningTotal(i, S.rounds))].join(',');
+    })].join(',');
+  });
+  const totals = ['Grand Total', '', '', ...range(S.playerCount).map(i => runningTotal(i, S.rounds))].join(',');
   dl('handfootscore.csv', [header,...rows,totals].join('\n'), 'text/csv');
 }
 function dl(name, content, type) {
@@ -988,7 +1326,7 @@ function dl(name, content, type) {
 (function initPWA() {
   const manifest = {
     name:'Hand & Foot Score', short_name:'H&F Score',
-    description:'Scorekeeper for Hand and Foot card game',
+    description:'Progressive Hand and Foot card game scorekeeper',
     start_url:'./', display:'standalone',
     background_color:'#0d1117', theme_color:'#0d1117',
     icons:[{
@@ -1002,7 +1340,7 @@ function dl(name, content, type) {
   document.head.appendChild(ml);
 
   if ('serviceWorker' in navigator) {
-    const sw = `const C='hnf-v1';
+    const sw = `const C='hnf-v2';
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll([self.location.pathname])));self.skipWaiting();});
 self.addEventListener('activate',e=>{e.waitUntil(clients.claim());});
 self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));});`;
