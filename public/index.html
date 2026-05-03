@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0d1117">
+<title>Hand &amp; Foot Score</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--surface:#161b22;--card:#21262d;--card2:#2d333b;
+  --border:#30363d;--accent:#7c3aed;--accent2:#a78bfa;
+  --gold:#f59e0b;--green:#34d399;--red:#f87171;--blue:#60a5fa;
+  --text:#e6edf3;--muted:#8b949e;--dim:#484f58;
+  --r:12px;--rs:8px;
+  --tab-h:60px;--safe-b:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow:hidden}
+#app{height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── SETUP ───────────────────────────────────────────────── */
+#screen-setup{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;min-height:100dvh;padding:24px;gap:28px;overflow-y:auto}
+.logo-suits{font-size:2.2rem;letter-spacing:10px;color:var(--accent2);text-align:center}
+.logo-title{font-size:2rem;font-weight:800;text-align:center;letter-spacing:-0.5px}
+.logo-sub{font-size:0.85rem;color:var(--muted);text-align:center;margin-top:2px}
+.setup-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:20px;width:100%;max-width:480px;display:flex;flex-direction:column;gap:18px}
+.section-label{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--muted);margin-bottom:6px}
+.count-row{display:flex;gap:6px}
+.count-btn{flex:1;height:44px;border:1px solid var(--border);border-radius:var(--rs);
+  background:var(--card);color:var(--text);font-size:1rem;font-weight:600;cursor:pointer;
+  transition:all .15s;-webkit-tap-highlight-color:transparent}
+.count-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.names-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+input[type=text],input[type=number]{background:var(--card);border:1px solid var(--border);
+  border-radius:var(--rs);color:var(--text);font-size:.9rem;padding:10px 12px;width:100%;
+  outline:none;transition:border-color .15s;-webkit-appearance:none}
+input[type=text]:focus,input[type=number]:focus{border-color:var(--accent2)}
+input[type=number]{text-align:center;font-family:'SF Mono',monospace;font-weight:600}
+.btn-primary{height:52px;border-radius:var(--r);border:none;background:var(--accent);
+  color:#fff;font-size:1rem;font-weight:700;cursor:pointer;width:100%;
+  transition:opacity .15s,transform .1s;-webkit-tap-highlight-color:transparent}
+.btn-primary:active{opacity:.85;transform:scale(.98)}
+.btn-ghost{height:44px;border-radius:var(--rs);border:1px solid var(--border);
+  background:transparent;color:var(--muted);font-size:.88rem;font-weight:500;
+  cursor:pointer;width:100%;transition:background .15s;-webkit-tap-highlight-color:transparent}
+.btn-ghost:active{background:var(--card)}
+
+/* ── MAIN SHELL ──────────────────────────────────────────── */
+#screen-main{display:flex;flex-direction:column;height:100vh;height:100dvh}
+.tab-content{flex:1;overflow:hidden;display:flex;flex-direction:column}
+
+/* ── TAB BAR ─────────────────────────────────────────────── */
+#tab-bar{display:flex;background:var(--surface);border-top:1px solid var(--border);
+  padding-bottom:var(--safe-b);flex-shrink:0}
+.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;border:none;background:transparent;color:var(--dim);cursor:pointer;
+  padding:8px 0;transition:color .15s;-webkit-tap-highlight-color:transparent;
+  min-height:var(--tab-h)}
+.tab-btn.active{color:var(--accent2)}
+.tab-btn svg{width:20px;height:20px}
+.tab-label{font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+
+/* ── GAME TAB ────────────────────────────────────────────── */
+#tab-game{display:flex;flex-direction:column;flex:1;overflow:hidden}
+.game-header{background:var(--surface);border-bottom:1px solid var(--border);
+  padding:10px 14px 8px;flex-shrink:0}
+.round-meta{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.round-badge{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--accent2);background:rgba(124,58,237,.15);padding:3px 10px;border-radius:99px}
+.round-min-label{font-size:.78rem;color:var(--muted)}
+.lb-strip{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:2px 0}
+.lb-strip::-webkit-scrollbar{display:none}
+.lb-item{display:flex;flex-direction:column;align-items:center;min-width:52px;flex-shrink:0}
+.lb-name{font-size:.62rem;color:var(--muted);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;max-width:56px;text-align:center}
+.lb-score{font-size:.9rem;font-weight:700;font-family:'SF Mono',monospace}
+.lb-item.leader .lb-name,.lb-item.leader .lb-score{color:var(--gold)}
+
+.cards-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:10px 10px 6px;display:flex;flex-direction:column;gap:8px}
+
+/* ── PLAYER CARD ─────────────────────────────────────────── */
+.player-card{background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);overflow:hidden;transition:border-color .2s}
+.player-card.went-out{border-color:var(--gold)}
+.card-head{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px 8px;background:var(--card)}
+.p-name{font-weight:700;font-size:.95rem}
+.p-running{font-size:.75rem;color:var(--muted);margin-top:1px}
+.p-running b{font-family:'SF Mono',monospace;color:var(--text)}
+.rt-wrap{text-align:right}
+.rt-num{font-size:1.35rem;font-weight:800;font-family:'SF Mono',monospace;line-height:1}
+.rt-num.pos{color:var(--green)}.rt-num.neg{color:var(--red)}.rt-num.zero{color:var(--dim)}
+.rt-lbl{font-size:.62rem;color:var(--muted)}
+.card-body{padding:10px 12px 12px}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.chip{display:flex;align-items:center;border-radius:99px;overflow:hidden;
+  border:1px solid var(--border);flex-shrink:0;height:36px}
+.chip-lbl{padding:0 8px;font-size:.7rem;font-weight:600;background:var(--card);
+  height:36px;display:flex;align-items:center;white-space:nowrap;pointer-events:none}
+.chip-val{min-width:26px;height:36px;display:flex;align-items:center;justify-content:center;
+  font-size:.82rem;font-weight:700;font-family:'SF Mono',monospace;
+  background:var(--card2);border-left:1px solid var(--border);border-right:1px solid var(--border)}
+.chip-btn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  border:none;background:var(--card);color:var(--muted);font-size:1.1rem;cursor:pointer;
+  transition:background .1s,color .1s;-webkit-tap-highlight-color:transparent;user-select:none}
+.chip-btn:active{background:var(--card2);color:var(--text)}
+.chip.r3 .chip-lbl{color:var(--red)}.chip.r3 .chip-val{color:var(--red)}
+.chip.clean .chip-val{color:var(--green)}.chip.dirty .chip-val{color:var(--blue)}
+.go-chip{height:36px;padding:0 12px;border-radius:99px;border:1px solid var(--border);
+  background:var(--card);color:var(--muted);font-size:.72rem;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;gap:4px;transition:all .15s;
+  -webkit-tap-highlight-color:transparent;white-space:nowrap}
+.go-chip.active{background:var(--gold);border-color:var(--gold);color:#000}
+
+/* steppers */
+.steppers{display:flex;flex-direction:column;gap:6px}
+.stepper-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.stepper-lbl{font-size:.78rem;color:var(--muted);flex:1}
+.stepper{display:flex;align-items:center;border:1px solid var(--border);
+  border-radius:var(--rs);overflow:hidden}
+.s-btn{width:40px;height:38px;border:none;background:var(--card);color:var(--text);
+  font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  -webkit-tap-highlight-color:transparent;user-select:none;transition:background .1s}
+.s-btn:active{background:var(--card2)}
+.s-inp{width:68px;height:38px;border:none;border-left:1px solid var(--border);
+  border-right:1px solid var(--border);background:var(--card2);color:var(--text);
+  font-size:.9rem;font-weight:700;font-family:'SF Mono',monospace;
+  text-align:center;outline:none}
+
+/* action bar */
+.action-bar{flex-shrink:0;padding:8px 10px calc(8px + var(--safe-b));
+  background:var(--surface);border-top:1px solid var(--border);display:flex;gap:8px}
+.btn-undo{height:48px;min-width:76px;border-radius:var(--rs);border:1px solid var(--border);
+  background:var(--card);color:var(--text);font-size:.82rem;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;
+  flex-shrink:0;transition:background .15s;-webkit-tap-highlight-color:transparent}
+.btn-undo:active{background:var(--card2)}
+.btn-undo:disabled{opacity:.35;cursor:not-allowed}
+.btn-save{flex:1;height:48px;border-radius:var(--rs);border:none;background:var(--accent);
+  color:#fff;font-size:.95rem;font-weight:700;cursor:pointer;letter-spacing:.02em;
+  transition:opacity .15s,transform .1s;-webkit-tap-highlight-color:transparent}
+.btn-save:active{opacity:.85;transform:scale(.98)}
+
+/* ── REVIEW TAB ──────────────────────────────────────────── */
+#tab-review{display:flex;flex-direction:column;flex:1;overflow:hidden}
+.tab-header{padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);
+  flex-shrink:0;font-size:1rem;font-weight:700}
+.rounds-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:10px;display:flex;flex-direction:column;gap:8px}
+.round-row{background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);overflow:hidden}
+.rr-head{display:flex;align-items:center;justify-content:space-between;
+  padding:11px 14px;cursor:pointer;-webkit-tap-highlight-color:transparent;gap:8px}
+.rr-num{font-weight:700;font-size:.9rem;flex-shrink:0}
+.rr-scores{display:flex;gap:6px;flex-wrap:wrap;flex:1;overflow:hidden}
+.rr-ps{font-size:.72rem;color:var(--muted);white-space:nowrap}
+.rr-ps b{color:var(--text);font-family:'SF Mono',monospace}
+.rr-chevron{color:var(--dim);font-size:.75rem;flex-shrink:0;transition:transform .2s}
+.round-row.open .rr-chevron{transform:rotate(180deg)}
+.rr-detail{display:none;border-top:1px solid var(--border);padding:12px}
+.round-row.open .rr-detail{display:block}
+.detail-table{width:100%;border-collapse:collapse;font-size:.75rem}
+.detail-table th{text-align:right;color:var(--muted);font-weight:600;padding:3px 6px 3px 0}
+.detail-table th:first-child{text-align:left}
+.detail-table td{text-align:right;font-family:'SF Mono',monospace;padding:3px 6px 3px 0}
+.detail-table td:first-child{text-align:left;font-family:inherit;color:var(--muted)}
+.detail-table tr.tot td{border-top:1px solid var(--border);font-weight:700;
+  color:var(--text);padding-top:7px}
+.rr-actions{display:flex;gap:8px;margin-top:10px}
+.btn-sm{height:34px;padding:0 12px;border-radius:var(--rs);font-size:.78rem;font-weight:600;
+  cursor:pointer;border:1px solid var(--border);transition:background .15s;
+  -webkit-tap-highlight-color:transparent}
+.btn-sm-plain{background:var(--card);color:var(--text)}
+.btn-sm-plain:active{background:var(--card2)}
+.btn-sm-danger{background:var(--card);color:var(--red);border-color:var(--red)}
+.btn-sm-danger:active{background:rgba(248,113,113,.12)}
+.totals-card{background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);padding:12px}
+.totals-title{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--muted);margin-bottom:8px}
+.totals-row{display:flex;justify-content:space-between;align-items:center;
+  padding:7px 10px;background:var(--card);border-radius:var(--rs);margin-bottom:6px}
+.totals-row:last-child{margin-bottom:0}
+.totals-row.leader{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3)}
+.totals-name{font-weight:600;font-size:.88rem}
+.totals-score{font-family:'SF Mono',monospace;font-weight:700;font-size:1.1rem}
+.totals-row.leader .totals-name,.totals-row.leader .totals-score{color:var(--gold)}
+
+/* ── SETTINGS TAB ────────────────────────────────────────── */
+#tab-settings{display:flex;flex-direction:column;flex:1;overflow:hidden}
+.settings-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:10px;display:flex;flex-direction:column;gap:10px}
+.settings-section{background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);overflow:hidden}
+.s-section-title{padding:8px 14px;font-size:.65rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--muted);background:var(--card);border-bottom:1px solid var(--border)}
+.s-row{display:flex;align-items:center;justify-content:space-between;
+  padding:11px 14px;border-bottom:1px solid var(--border);gap:12px}
+.s-row:last-child{border-bottom:none}
+.s-lbl{font-size:.86rem;font-weight:500;flex:1}
+.s-hint{font-size:.7rem;color:var(--muted);margin-top:1px}
+.s-inp-sm{width:72px;text-align:center}
+.mins-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:12px}
+.min-cell{display:flex;flex-direction:column;align-items:center;gap:4px}
+.min-cell label{font-size:.65rem;color:var(--muted)}
+/* toggle */
+.tog{position:relative;width:44px;height:24px;flex-shrink:0}
+.tog input{opacity:0;width:0;height:0;position:absolute}
+.tog-track{position:absolute;inset:0;background:var(--dim);border-radius:12px;cursor:pointer;transition:background .2s}
+.tog-track::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;
+  background:#fff;top:3px;left:3px;transition:transform .2s}
+.tog input:checked+.tog-track{background:var(--accent)}
+.tog input:checked+.tog-track::after{transform:translateX(20px)}
+/* export/danger */
+.export-row{padding:10px;display:flex;gap:8px}
+.btn-export{flex:1;height:40px;border-radius:var(--rs);border:1px solid var(--border);
+  background:var(--card);color:var(--text);font-size:.8rem;font-weight:600;
+  cursor:pointer;transition:background .15s}
+.btn-export:active{background:var(--card2)}
+.danger-row{padding:10px;display:flex;flex-direction:column;gap:8px}
+.btn-danger{height:44px;border-radius:var(--rs);border:1px solid var(--red);
+  background:transparent;color:var(--red);font-size:.86rem;font-weight:600;
+  cursor:pointer;width:100%;transition:background .15s}
+.btn-danger:active{background:rgba(248,113,113,.1)}
+/* help */
+.help-body{padding:12px 14px;font-size:.8rem;color:var(--muted);line-height:1.75}
+.help-body li{margin-left:14px;margin-bottom:2px}
+
+/* ── MODALS ──────────────────────────────────────────────── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);
+  display:flex;align-items:center;justify-content:center;
+  z-index:1000;padding:20px;backdrop-filter:blur(4px)}
+.overlay.bottom{align-items:flex-end;padding:0}
+.modal-sheet{background:var(--surface);border-radius:16px;padding:20px;
+  width:100%;max-width:360px;display:flex;flex-direction:column;gap:14px}
+.overlay.bottom .modal-sheet{border-radius:16px 16px 0 0;max-width:480px;
+  padding:20px 20px calc(20px + var(--safe-b))}
+.modal-title{font-size:1.05rem;font-weight:700}
+.modal-body{font-size:.88rem;color:var(--muted);line-height:1.5}
+.modal-actions{display:flex;gap:8px}
+.modal-actions button{flex:1;height:46px;border-radius:var(--rs);
+  font-size:.9rem;font-weight:700;cursor:pointer;border:none;
+  -webkit-tap-highlight-color:transparent}
+.btn-cancel{background:var(--card);color:var(--text);border:1px solid var(--border) !important}
+.btn-ok{background:var(--accent);color:#fff}
+.btn-ok-danger{background:var(--red);color:#fff}
+.summary-rows{display:flex;flex-direction:column;gap:6px}
+.sum-row{display:flex;justify-content:space-between;align-items:center;
+  padding:8px 12px;background:var(--card);border-radius:var(--rs)}
+.sum-name{font-weight:600;font-size:.9rem}
+.sum-delta{font-family:'SF Mono',monospace;font-weight:700;font-size:1rem}
+.sum-run{font-size:.7rem;color:var(--muted);text-align:right}
+
+/* ── TOAST ───────────────────────────────────────────────── */
+#toast{position:fixed;bottom:calc(var(--tab-h) + var(--safe-b) + 10px);
+  left:50%;transform:translateX(-50%);
+  background:var(--card2);color:var(--text);padding:9px 18px;
+  border-radius:99px;font-size:.82rem;font-weight:600;z-index:999;
+  pointer-events:none;transition:opacity .3s;white-space:nowrap;
+  border:1px solid var(--border);opacity:0}
+#toast.show{opacity:1}
+
+/* ── FLASH ───────────────────────────────────────────────── */
+@keyframes flash{0%{background:rgba(52,211,153,.2)}100%{background:transparent}}
+.flash{animation:flash .4s ease-out}
+
+/* ── EMPTY STATE ─────────────────────────────────────────── */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:48px 24px;gap:10px;color:var(--muted);text-align:center;flex:1}
+.empty-icon{font-size:2.5rem;opacity:.35}
+.empty p{font-size:.86rem;line-height:1.6}
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media(min-width:600px){
+  .cards-area{flex-direction:row;flex-wrap:wrap}
+  .player-card{flex:1;min-width:260px}
+}
+@media(orientation:landscape)and(max-height:500px){
+  .cards-area{flex-direction:row;flex-wrap:wrap}
+  .player-card{flex:1;min-width:240px}
+}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// DEFAULTS & CONSTANTS
+// ─────────────────────────────────────────────────────────────
+const DEF = {
+  playerCount: 4,
+  playerNames: ['Alice','Bob','Carol','Dave','Eve','Frank'],
+  roundCount: 4,
+  roundMinimums: [50,90,120,150],
+  cleanBookPoints: 500,
+  dirtyBookPoints: 300,
+  goOutBonus: 100,
+  red3Points: 100,
+  black3Penalty: 100,
+  requireCleanBook: true,
+  requireDirtyBook: true,
+  black3PenaltyEnabled: true,
+  red3BonusEnabled: true,
+};
+
+// ─────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────
+let S = {
+  screen: 'setup',
+  tab: 'game',
+  settings: JSON.parse(JSON.stringify(DEF)),
+  rounds: [],
+  cur: null,   // currentRound: { roundNumber, scores[] }
+  undo: [],
+};
+
+// ─────────────────────────────────────────────────────────────
+// PERSIST
+// ─────────────────────────────────────────────────────────────
+function save() {
+  try { localStorage.setItem('hnf', JSON.stringify({
+    screen: S.screen, settings: S.settings, rounds: S.rounds, cur: S.cur
+  })); } catch(e) {}
+}
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem('hnf') || 'null');
+    if (!d) return;
+    S.screen   = d.screen   || 'setup';
+    S.settings = d.settings || JSON.parse(JSON.stringify(DEF));
+    S.rounds   = d.rounds   || [];
+    S.cur      = d.cur      || null;
+  } catch(e) {}
+}
+
+// ─────────────────────────────────────────────────────────────
+// CALCULATION
+// ─────────────────────────────────────────────────────────────
+function calcRound(sc, cfg) {
+  let t = sc.meldPoints;
+  if (cfg.red3BonusEnabled)      t += sc.red3Count         * cfg.red3Points;
+  if (cfg.black3PenaltyEnabled)  t -= sc.black3PenaltyCount * cfg.black3Penalty;
+  t += sc.cleanBooks * cfg.cleanBookPoints;
+  t += sc.dirtyBooks * cfg.dirtyBookPoints;
+  if (sc.wentOut) t += cfg.goOutBonus;
+  t -= sc.leftoverPoints;
+  return t;
+}
+function runningTotal(pid, rounds) {
+  return rounds.reduce((s, r) => {
+    const sc = r.scores.find(x => x.playerId === pid);
+    return s + (sc ? sc.roundTotal : 0);
+  }, 0);
+}
+function blankScore(pid) {
+  return { playerId:pid, red3Count:0, black3PenaltyCount:0,
+    meldPoints:0, cleanBooks:0, dirtyBooks:0, wentOut:false,
+    leftoverPoints:0, roundTotal:0 };
+}
+function recomputeTotals() {
+  if (!S.cur) return;
+  S.cur.scores.forEach(sc => { sc.roundTotal = calcRound(sc, S.settings); });
+}
+function initRound() {
+  const n = S.rounds.length + 1;
+  S.cur = { roundNumber:n, scores: range(S.settings.playerCount).map(blankScore) };
+  S.undo = [];
+}
+
+// ─────────────────────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────────────────────
+const h = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const range = n => Array.from({length:n},(_,i)=>i);
+const $ = id => document.getElementById(id);
+const $$ = sel => document.querySelectorAll(sel);
+
+let _toastTimer;
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+function flash(pid) {
+  const el = document.querySelector(`[data-pid="${pid}"] .card-body`);
+  if (el) { el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+}
+
+// ─────────────────────────────────────────────────────────────
+// MODAL
+// ─────────────────────────────────────────────────────────────
+function showModal(html, bottom = false) {
+  let ov = $('modal-ov');
+  if (!ov) { ov = document.createElement('div'); ov.id='modal-ov'; document.body.appendChild(ov); }
+  ov.className = 'overlay' + (bottom ? ' bottom' : '');
+  ov.innerHTML = `<div class="modal-sheet">${html}</div>`;
+  ov.onclick = e => { if (e.target === ov) closeModal(); };
+}
+function closeModal() {
+  const ov = $('modal-ov');
+  if (ov) ov.remove();
+}
+function confirm(title, body, onOk, danger=true) {
+  showModal(`<div class="modal-title">${h(title)}</div>
+    <div class="modal-body">${h(body)}</div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="${danger?'btn-ok-danger':'btn-ok'}" onclick="closeModal();(${onOk.toString()})()">Confirm</button>
+    </div>`);
+}
+
+// ─────────────────────────────────────────────────────────────
+// SCORE ACTIONS
+// ─────────────────────────────────────────────────────────────
+function adj(pid, field, delta) {
+  const sc = S.cur.scores.find(s => s.playerId === pid);
+  if (!sc) return;
+  S.undo.push({pid, field, prev: sc[field]});
+  if (S.undo.length > 40) S.undo.shift();
+  sc[field] = Math.max(0, sc[field] + delta);
+  recomputeTotals(); save(); patchCard(pid); flash(pid);
+}
+function setVal(pid, field, value) {
+  const sc = S.cur.scores.find(s => s.playerId === pid);
+  if (!sc) return;
+  S.undo.push({pid, field, prev: sc[field]});
+  sc[field] = Math.max(0, Number(value) || 0);
+  recomputeTotals(); save(); patchCard(pid);
+}
+function toggleOut(pid) {
+  const sc = S.cur.scores.find(s => s.playerId === pid);
+  if (!sc) return;
+  const next = !sc.wentOut;
+  if (next && !canGoOut(sc)) { toast('Go-out requirements not met'); return; }
+  S.undo.push({pid, field:'wentOut', prev: sc.wentOut});
+  if (next) S.cur.scores.forEach(s => { s.wentOut = false; });
+  sc.wentOut = next;
+  recomputeTotals(); save();
+  // full re-render needed so all go-out chips update
+  renderGame();
+}
+function canGoOut(sc) {
+  const cfg = S.settings;
+  if (cfg.requireCleanBook && sc.cleanBooks < 1) return false;
+  if (cfg.requireDirtyBook && sc.dirtyBooks < 1) return false;
+  return true;
+}
+function undoLast() {
+  const item = S.undo.pop();
+  if (!item) return;
+  const sc = S.cur.scores.find(s => s.playerId === item.pid);
+  if (sc) sc[item.field] = item.prev;
+  recomputeTotals(); save();
+  if (item.field === 'wentOut') renderGame(); else patchCard(item.pid);
+  toast('Undone');
+}
+
+// ─────────────────────────────────────────────────────────────
+// ROUND FLOW
+// ─────────────────────────────────────────────────────────────
+function trySaveRound() {
+  const someOut = S.cur.scores.some(s => s.wentOut);
+  if (!someOut) {
+    confirm('No one went out',
+      'No player is marked as going out. Save round anyway?',
+      doSaveRound, false);
+  } else { doSaveRound(); }
+}
+function doSaveRound() {
+  recomputeTotals();
+  S.rounds.push(JSON.parse(JSON.stringify(S.cur)));
+  save();
+  showRoundSummary();
+}
+function showRoundSummary() {
+  const round = S.rounds[S.rounds.length - 1];
+  const cfg = S.settings;
+  const isLast = round.roundNumber >= cfg.roundCount;
+  const rows = round.scores.map(sc => {
+    const running = runningTotal(sc.playerId, S.rounds);
+    const cls = sc.roundTotal > 0 ? 'color:var(--green)' : sc.roundTotal < 0 ? 'color:var(--red)' : 'color:var(--dim)';
+    return `<div class="sum-row">
+      <div><div class="sum-name">${h(cfg.playerNames[sc.playerId] || 'P'+(sc.playerId+1))}</div></div>
+      <div><div class="sum-delta" style="${cls}">${sc.roundTotal>0?'+':''}${sc.roundTotal}</div>
+      <div class="sum-run">Total: ${running}</div></div>
+    </div>`;
+  }).join('');
+  const nextLabel = isLast ? 'View Scores' : `Start Round ${round.roundNumber + 1}`;
+  showModal(`<div class="modal-title">Round ${round.roundNumber} Complete</div>
+    <div class="summary-rows">${rows}</div>
+    <div class="modal-actions">
+      <button class="btn-ok" onclick="closeModal();afterRound(${isLast})">${nextLabel}</button>
+    </div>`, true);
+}
+function afterRound(isLast) {
+  if (isLast) { S.tab = 'review'; render(); }
+  else { initRound(); render(); }
+}
+
+// ─────────────────────────────────────────────────────────────
+// PARTIAL DOM PATCH (avoids full re-render on every tap)
+// ─────────────────────────────────────────────────────────────
+function patchCard(pid) {
+  const sc = S.cur.scores.find(s => s.playerId === pid);
+  const card = document.querySelector(`[data-pid="${pid}"]`);
+  if (!sc || !card) { render(); return; }
+
+  const rt = sc.roundTotal;
+  const rtEl = card.querySelector('.rt-num');
+  if (rtEl) {
+    rtEl.textContent = (rt > 0 ? '+' : '') + rt;
+    rtEl.className = 'rt-num ' + (rt > 0 ? 'pos' : rt < 0 ? 'neg' : 'zero');
+  }
+  const run = runningTotal(pid, S.rounds) + rt;
+  const runEl = card.querySelector('.p-running b');
+  if (runEl) runEl.textContent = run;
+
+  card.querySelectorAll('.chip').forEach(chip => {
+    const v = chip.querySelector('.chip-val');
+    if (!v) return;
+    if (chip.classList.contains('r3'))    v.textContent = sc.red3Count;
+    if (chip.classList.contains('b3'))    v.textContent = sc.black3PenaltyCount;
+    if (chip.classList.contains('clean')) v.textContent = sc.cleanBooks;
+    if (chip.classList.contains('dirty')) v.textContent = sc.dirtyBooks;
+  });
+
+  const inps = card.querySelectorAll('.s-inp');
+  if (inps[0] && document.activeElement !== inps[0]) inps[0].value = sc.meldPoints;
+  if (inps[1] && document.activeElement !== inps[1]) inps[1].value = sc.leftoverPoints;
+
+  patchLeaderboard();
+  const undoBtn = document.querySelector('.btn-undo');
+  if (undoBtn) undoBtn.disabled = S.undo.length === 0;
+}
+function patchLeaderboard() {
+  const strip = document.querySelector('.lb-strip');
+  if (!strip || !S.cur) return;
+  strip.innerHTML = lbHTML();
+}
+function lbHTML() {
+  const cfg = S.settings;
+  return S.cur.scores
+    .map(sc => ({ name: cfg.playerNames[sc.playerId], total: runningTotal(sc.playerId, S.rounds) + sc.roundTotal }))
+    .sort((a,b) => b.total - a.total)
+    .map((p, i) => `<div class="lb-item ${i===0?'leader':''}">
+      <div class="lb-name">${h(p.name)}</div>
+      <div class="lb-score">${p.total}</div>
+    </div>`).join('');
+}
+
+// ─────────────────────────────────────────────────────────────
+// RENDER: SETUP
+// ─────────────────────────────────────────────────────────────
+function renderSetup() {
+  const cfg = S.settings;
+  const hasGame = S.rounds.length > 0 || S.cur;
+  const counts = [2,3,4,5,6].map(n =>
+    `<button class="count-btn ${cfg.playerCount===n?'active':''}" onclick="setPlayerCount(${n})">${n}</button>`
+  ).join('');
+  const nameInputs = range(cfg.playerCount).map(i =>
+    `<input type="text" class="pname" data-i="${i}"
+      value="${h(cfg.playerNames[i] || 'Player '+(i+1))}" placeholder="Player ${i+1}" maxlength="16">`
+  ).join('');
+  return `<div id="screen-setup">
+    <div class="logo-suits">♠ ♥ ♣ ♦</div>
+    <div class="logo-title">Hand &amp; Foot</div>
+    <div class="logo-sub">Score Keeper</div>
+    <div class="setup-card">
+      <div>
+        <div class="section-label">Number of players</div>
+        <div class="count-row">${counts}</div>
+      </div>
+      <div>
+        <div class="section-label">Player names</div>
+        <div class="names-grid">${nameInputs}</div>
+      </div>
+      <button class="btn-primary" onclick="startGame()">Start Game</button>
+      ${hasGame ? `<button class="btn-ghost" onclick="resumeGame()">Resume Last Game</button>` : ''}
+    </div>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// RENDER: PLAYER CARD
+// ─────────────────────────────────────────────────────────────
+function renderCard(sc) {
+  const cfg = S.settings;
+  const name = cfg.playerNames[sc.playerId] || 'P'+(sc.playerId+1);
+  const rt = sc.roundTotal;
+  const rtClass = rt > 0 ? 'pos' : rt < 0 ? 'neg' : 'zero';
+  const rtStr = (rt > 0 ? '+' : '') + rt;
+  const running = runningTotal(sc.playerId, S.rounds) + rt;
+  const pid = sc.playerId;
+
+  const r3chip = cfg.red3BonusEnabled ? `
+    <div class="chip r3">
+      <span class="chip-lbl">🔴 R3</span>
+      <button class="chip-btn" ontouchstart="" onclick="adj(${pid},'red3Count',-1)">−</button>
+      <span class="chip-val">${sc.red3Count}</span>
+      <button class="chip-btn" ontouchstart="" onclick="adj(${pid},'red3Count',1)">+</button>
+    </div>` : '';
+
+  const b3chip = cfg.black3PenaltyEnabled ? `
+    <div class="chip b3">
+      <span class="chip-lbl" style="color:var(--muted)">⚫ B3</span>
+      <button class="chip-btn" ontouchstart="" onclick="adj(${pid},'black3PenaltyCount',-1)">−</button>
+      <span class="chip-val">${sc.black3PenaltyCount}</span>
+      <button class="chip-btn" ontouchstart="" onclick="adj(${pid},'black3PenaltyCount',1)">+</button>
+    </div>` : '';
+
+  return `<div class="player-card ${sc.wentOut?'went-out':''}" data-pid="${pid}">
+    <div class="card-head">
+      <div>
+        <div class="p-name">${h(name)}</div>
+        <div class="p-running">Total: <b>${running}</b></div>
+      </div>
+      <div class="rt-wrap">
+        <div class="rt-num ${rtClass}">${rtStr}</div>
+        <div class="rt-lbl">this round</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="chips">
+        ${r3chip}${b3chip}
+        <div class="chip clean">
+          <span class="chip-lbl">♣ Clean</span>
+          <button class="chip-btn" ontouchstart="" onclick="adj(${pid},'cleanBooks',-1)">−</button>
+          <span class="chip-val">${sc.cleanBooks}</span>
+          <button class="chip-btn" ontouchstart="" onclick="adj(${pid},'cleanBooks',1)">+</button>
+        </div>
+        <div class="chip dirty">
+          <span class="chip-lbl">♦ Dirty</span>
+          <button class="chip-btn" ontouchstart="" onclick="adj(${pid},'dirtyBooks',-1)">−</button>
+          <span class="chip-val">${sc.dirtyBooks}</span>
+          <button class="chip-btn" ontouchstart="" onclick="adj(${pid},'dirtyBooks',1)">+</button>
+        </div>
+        <button class="go-chip ${sc.wentOut?'active':''}" ontouchstart="" onclick="toggleOut(${pid})">
+          ${sc.wentOut ? '★ Went Out' : '☆ Go Out'}
+        </button>
+      </div>
+      <div class="steppers">
+        <div class="stepper-row">
+          <span class="stepper-lbl">Meld Points</span>
+          <div class="stepper">
+            <button class="s-btn" ontouchstart="" onclick="adj(${pid},'meldPoints',-10)">−</button>
+            <input class="s-inp" type="number" min="0" value="${sc.meldPoints}"
+              onchange="setVal(${pid},'meldPoints',this.value)" onfocus="this.select()">
+            <button class="s-btn" ontouchstart="" onclick="adj(${pid},'meldPoints',10)">+</button>
+          </div>
+        </div>
+        <div class="stepper-row">
+          <span class="stepper-lbl">Leftover Cards (deducted)</span>
+          <div class="stepper">
+            <button class="s-btn" ontouchstart="" onclick="adj(${pid},'leftoverPoints',-5)">−</button>
+            <input class="s-inp" type="number" min="0" value="${sc.leftoverPoints}"
+              onchange="setVal(${pid},'leftoverPoints',this.value)" onfocus="this.select()">
+            <button class="s-btn" ontouchstart="" onclick="adj(${pid},'leftoverPoints',5)">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// RENDER: GAME TAB
+// ─────────────────────────────────────────────────────────────
+function renderGame() {
+  if (!S.cur) return `<div class="empty"><div class="empty-icon">♠</div><p>No active game</p></div>`;
+  const cfg = S.settings;
+  const rn = S.cur.roundNumber;
+  const minPts = cfg.roundMinimums[rn-1] ?? cfg.roundMinimums[cfg.roundMinimums.length-1];
+  const cards = S.cur.scores.map(renderCard).join('');
+  return `<div id="tab-game" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+    <div class="game-header">
+      <div class="round-meta">
+        <span class="round-badge">Round ${rn}</span>
+        <span class="round-min-label">Min meld: ${minPts} pts</span>
+      </div>
+      <div class="lb-strip">${lbHTML()}</div>
+    </div>
+    <div class="cards-area">${cards}</div>
+    <div class="action-bar">
+      <button class="btn-undo" ${S.undo.length?'':'disabled'} onclick="undoLast()">↩ Undo</button>
+      <button class="btn-save" onclick="trySaveRound()">Save Round ${rn} →</button>
+    </div>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// RENDER: REVIEW TAB
+// ─────────────────────────────────────────────────────────────
+function renderReview() {
+  const cfg = S.settings;
+  if (S.rounds.length === 0) return `
+    <div id="tab-review" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+      <div class="tab-header">Round History</div>
+      <div class="empty"><div class="empty-icon">📋</div>
+        <p>No completed rounds yet.<br>Save a round to see history here.</p></div>
+    </div>`;
+
+  const roundRows = S.rounds.map((round, ri) => {
+    const scoreChips = round.scores.map(sc =>
+      `<span class="rr-ps">${h(cfg.playerNames[sc.playerId]||'P'+(sc.playerId+1))}: <b>${sc.roundTotal>0?'+':''}${sc.roundTotal}</b></span>`
+    ).join('');
+    const thCols = round.scores.map(sc => `<th>${h(cfg.playerNames[sc.playerId]||'P'+(sc.playerId+1))}</th>`).join('');
+    const rows = [
+      ['Meld',       sc => sc.meldPoints || '—'],
+      ['Clean books',sc => sc.cleanBooks ? `${sc.cleanBooks} (+${sc.cleanBooks*cfg.cleanBookPoints})` : '—'],
+      ['Dirty books',sc => sc.dirtyBooks ? `${sc.dirtyBooks} (+${sc.dirtyBooks*cfg.dirtyBookPoints})` : '—'],
+      ['Red 3s',     sc => sc.red3Count ? `${sc.red3Count} (+${sc.red3Count*cfg.red3Points})` : '—'],
+      ['Black 3s',   sc => sc.black3PenaltyCount ? `${sc.black3PenaltyCount} (−${sc.black3PenaltyCount*cfg.black3Penalty})` : '—'],
+      ['Went out',   sc => sc.wentOut ? `+${cfg.goOutBonus}` : '—'],
+      ['Leftover',   sc => sc.leftoverPoints ? `−${sc.leftoverPoints}` : '—'],
+    ].map(([lbl,fn]) =>
+      `<tr><td>${lbl}</td>${round.scores.map(sc=>`<td>${fn(sc)}</td>`).join('')}</tr>`
+    ).join('');
+    const totRow = `<tr class="tot"><td>Total</td>${round.scores.map(sc=>`<td>${sc.roundTotal>0?'+':''}${sc.roundTotal}</td>`).join('')}</tr>`;
+    const isLast = ri === S.rounds.length - 1;
+    return `<div class="round-row" id="rr-${ri}">
+      <div class="rr-head" onclick="toggleRR(${ri})">
+        <span class="rr-num">Round ${round.roundNumber}</span>
+        <div class="rr-scores">${scoreChips}</div>
+        <span class="rr-chevron">▼</span>
+      </div>
+      <div class="rr-detail">
+        <div style="overflow-x:auto">
+          <table class="detail-table">
+            <thead><tr><th></th>${thCols}</tr></thead>
+            <tbody>${rows}${totRow}</tbody>
+          </table>
+        </div>
+        <div class="rr-actions">
+          <button class="btn-sm btn-sm-plain" onclick="editRound(${ri})">Edit Round</button>
+          ${isLast ? `<button class="btn-sm btn-sm-danger" onclick="deleteRound(${ri})">Delete</button>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const totals = range(cfg.playerCount)
+    .map(i => ({ name: cfg.playerNames[i]||'P'+(i+1), total: runningTotal(i, S.rounds) }))
+    .sort((a,b) => b.total - a.total);
+  const totalsHTML = totals.map((p,i) =>
+    `<div class="totals-row ${i===0?'leader':''}">
+      <span class="totals-name">${h(p.name)}</span>
+      <span class="totals-score">${p.total}</span>
+    </div>`).join('');
+
+  return `<div id="tab-review" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+    <div class="tab-header">Round History</div>
+    <div class="rounds-list">
+      ${roundRows}
+      <div class="totals-card">
+        <div class="totals-title">Running Totals</div>
+        ${totalsHTML}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// RENDER: SETTINGS TAB
+// ─────────────────────────────────────────────────────────────
+function renderSettings() {
+  const cfg = S.settings;
+  const tog = (key) => `<label class="tog"><input type="checkbox" ${cfg[key]?'checked':''}
+    onchange="setSetting('${key}',this.checked)"><span class="tog-track"></span></label>`;
+  const numRow = (label, hint, key, min, max, step) => `
+    <div class="s-row">
+      <div><div class="s-lbl">${label}</div>${hint?`<div class="s-hint">${hint}</div>`:''}</div>
+      <input class="s-inp-sm" type="number" min="${min}" max="${max}" step="${step}"
+        value="${cfg[key]}" onchange="setSetting('${key}',+this.value)" onfocus="this.select()">
+    </div>`;
+  const playerRows = range(cfg.playerCount).map(i => `
+    <div class="s-row">
+      <span class="s-lbl">Player ${i+1}</span>
+      <input type="text" style="width:130px;text-align:right" maxlength="16"
+        value="${h(cfg.playerNames[i]||'Player '+(i+1))}"
+        oninput="state_setPlayerName(${i},this.value)">
+    </div>`).join('');
+  const minCells = cfg.roundMinimums.map((v,i) => `
+    <div class="min-cell">
+      <label>Rd ${i+1}</label>
+      <input type="number" min="0" step="10" value="${v}"
+        onchange="setRoundMin(${i},+this.value)" onfocus="this.select()">
+    </div>`).join('');
+
+  return `<div id="tab-settings" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+    <div class="tab-header">Settings &amp; Rules</div>
+    <div class="settings-scroll">
+      <div class="settings-section">
+        <div class="s-section-title">Players</div>
+        ${playerRows}
+        <div class="s-row">
+          <span class="s-lbl">Number of rounds</span>
+          <input class="s-inp-sm" type="number" min="1" max="20" step="1"
+            value="${cfg.roundCount}" onchange="setSetting('roundCount',+this.value)" onfocus="this.select()">
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="s-section-title">Round Minimums (meld pts required)</div>
+        <div class="mins-grid">${minCells}</div>
+      </div>
+      <div class="settings-section">
+        <div class="s-section-title">Book &amp; Bonus Values</div>
+        ${numRow('Clean Book','All natural cards','cleanBookPoints',0,2000,50)}
+        ${numRow('Dirty Book','Includes wild cards','dirtyBookPoints',0,2000,50)}
+        ${numRow('Going Out Bonus','','goOutBonus',0,500,50)}
+      </div>
+      <div class="settings-section">
+        <div class="s-section-title">Special Cards</div>
+        ${numRow('Red 3 Bonus','Points each','red3Points',0,500,50)}
+        <div class="s-row"><div><div class="s-lbl">Red 3 bonus enabled</div></div>${tog('red3BonusEnabled')}</div>
+        ${numRow('Black 3 Penalty','Points each left in hand','black3Penalty',0,500,5)}
+        <div class="s-row"><div><div class="s-lbl">Black 3 penalty enabled</div></div>${tog('black3PenaltyEnabled')}</div>
+      </div>
+      <div class="settings-section">
+        <div class="s-section-title">Go-Out Requirements</div>
+        <div class="s-row">
+          <div><div class="s-lbl">Require ≥1 clean book</div></div>${tog('requireCleanBook')}
+        </div>
+        <div class="s-row">
+          <div><div class="s-lbl">Require ≥1 dirty book</div></div>${tog('requireDirtyBook')}
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="s-section-title">Quick Rules Reference</div>
+        <div class="help-body">
+          <ul>
+            <li>Draw 2 cards, meld sets of same rank, discard to end turn</li>
+            <li>Clean book = 7 natural cards → +${cfg.cleanBookPoints} pts</li>
+            <li>Dirty book = 7 cards with wilds → +${cfg.dirtyBookPoints} pts</li>
+            <li>Empty your Hand to pick up your Foot</li>
+            <li>Go out by emptying Foot (+ required books met)</li>
+            <li>Going out bonus: +${cfg.goOutBonus} pts</li>
+            <li>Red 3s: +${cfg.red3Points} each &nbsp;|&nbsp; Jokers &amp; 2s are wild</li>
+            <li>Add meld + book pts, subtract leftover card pts</li>
+          </ul>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="s-section-title">Data</div>
+        <div class="export-row">
+          <button class="btn-export" onclick="exportJSON()">Export JSON</button>
+          <button class="btn-export" onclick="exportCSV()">Export CSV</button>
+        </div>
+        <div class="danger-row">
+          <button class="btn-danger" onclick="newGameConfirm()">New Game</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// RENDER: TAB BAR
+// ─────────────────────────────────────────────────────────────
+const TABS = [
+  ['game',    'Game',    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>`],
+  ['review',  'History', `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>`],
+  ['settings','Rules',   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>`],
+];
+function renderTabBar() {
+  return `<nav id="tab-bar">${TABS.map(([id,lbl,ico]) =>
+    `<button class="tab-btn ${S.tab===id?'active':''}" onclick="switchTab('${id}')">
+      ${ico}<span class="tab-label">${lbl}</span>
+    </button>`).join('')}</nav>`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// MAIN RENDER
+// ─────────────────────────────────────────────────────────────
+function render() {
+  const app = $('app');
+  if (S.screen === 'setup') { app.innerHTML = renderSetup(); return; }
+  let tabHTML = S.tab === 'game' ? renderGame()
+              : S.tab === 'review' ? renderReview()
+              : renderSettings();
+  app.innerHTML = `<div id="screen-main">
+    <div class="tab-content">${tabHTML}</div>
+    ${renderTabBar()}
+  </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// ACTIONS / EVENT HANDLERS
+// ─────────────────────────────────────────────────────────────
+function switchTab(t) { S.tab = t; render(); }
+
+function setPlayerCount(n) {
+  S.settings.playerCount = n; save(); render();
+}
+function state_setPlayerName(i, v) {
+  S.settings.playerNames[i] = v; save();
+}
+
+function startGame() {
+  $$('.pname').forEach(inp => {
+    const i = +inp.dataset.i;
+    S.settings.playerNames[i] = inp.value.trim() || 'Player '+(i+1);
+  });
+  S.rounds = []; S.cur = null; S.undo = [];
+  S.screen = 'game'; S.tab = 'game';
+  initRound(); save(); render();
+}
+function resumeGame() {
+  S.screen = 'game';
+  if (!S.cur) initRound();
+  render();
+}
+
+function toggleRR(ri) {
+  const el = $(`rr-${ri}`);
+  if (el) el.classList.toggle('open');
+}
+function editRound(ri) {
+  confirm('Edit Round',
+    `Reload Round ${S.rounds[ri].roundNumber} for editing? It will be removed from history until re-saved.`,
+    () => {
+      S.cur = JSON.parse(JSON.stringify(S.rounds[ri]));
+      S.rounds.splice(ri, 1);
+      S.undo = []; S.tab = 'game';
+      save(); render();
+    }, false);
+}
+function deleteRound(ri) {
+  confirm('Delete Round',
+    `Permanently delete Round ${S.rounds[ri].roundNumber}?`,
+    () => { S.rounds.splice(ri, 1); save(); render(); });
+}
+
+function setSetting(key, val) { S.settings[key] = val; save(); }
+function setRoundMin(i, val)  { S.settings.roundMinimums[i] = val; save(); }
+
+function newGameConfirm() {
+  confirm('New Game',
+    'Clear all scores and start fresh? Export first if you want to keep this game.',
+    () => { S.rounds=[]; S.cur=null; S.undo=[]; S.screen='setup'; save(); render(); });
+}
+
+// ─────────────────────────────────────────────────────────────
+// EXPORT
+// ─────────────────────────────────────────────────────────────
+function exportJSON() {
+  dl('handfootscore.json',
+    JSON.stringify({ exportedAt: new Date().toISOString(), settings: S.settings, rounds: S.rounds }, null, 2),
+    'application/json');
+}
+function exportCSV() {
+  const cfg = S.settings;
+  const names = range(cfg.playerCount).map(i => cfg.playerNames[i]||'P'+(i+1));
+  const header = ['Round',...names].join(',');
+  const rows = S.rounds.map(r =>
+    [r.roundNumber, ...range(cfg.playerCount).map(i => {
+      const sc = r.scores.find(s => s.playerId===i);
+      return sc ? sc.roundTotal : 0;
+    })].join(',')
+  );
+  const totals = ['Total',...range(cfg.playerCount).map(i => runningTotal(i, S.rounds))].join(',');
+  dl('handfootscore.csv', [header,...rows,totals].join('\n'), 'text/csv');
+}
+function dl(name, content, type) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content],{type}));
+  a.download = name; a.click();
+}
+
+// ─────────────────────────────────────────────────────────────
+// PWA
+// ─────────────────────────────────────────────────────────────
+(function initPWA() {
+  const manifest = {
+    name:'Hand & Foot Score', short_name:'H&F Score',
+    description:'Scorekeeper for Hand and Foot card game',
+    start_url:'./', display:'standalone',
+    background_color:'#0d1117', theme_color:'#0d1117',
+    icons:[{
+      src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230d1117'/%3E%3Ctext x='256' y='350' text-anchor='middle' font-size='300' fill='%237c3aed'%3E%E2%99%A0%3C/text%3E%3C/svg%3E",
+      sizes:'512x512', type:'image/svg+xml', purpose:'any maskable'
+    }]
+  };
+  const ml = document.createElement('link');
+  ml.rel = 'manifest';
+  ml.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'}));
+  document.head.appendChild(ml);
+
+  if ('serviceWorker' in navigator) {
+    const sw = `const C='hnf-v1';
+self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll([self.location.pathname])));self.skipWaiting();});
+self.addEventListener('activate',e=>{e.waitUntil(clients.claim());});
+self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));});`;
+    navigator.serviceWorker.register(
+      URL.createObjectURL(new Blob([sw],{type:'application/javascript'}))
+    ).catch(()=>{});
+  }
+
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault(); deferredPrompt = e;
+    const b = document.createElement('div');
+    b.style.cssText='position:fixed;top:0;left:0;right:0;background:#7c3aed;color:#fff;padding:11px 16px;display:flex;align-items:center;justify-content:space-between;z-index:2000;font-size:.85rem;font-weight:600;';
+    b.innerHTML=`<span>Install Hand &amp; Foot Score</span><div style="display:flex;gap:8px">
+      <button onclick="this.closest('div[style]').remove()" style="border:1px solid rgba(255,255,255,.4);background:transparent;color:#fff;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:.78rem">Later</button>
+      <button id="_ib" style="background:#fff;color:#7c3aed;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-weight:700;font-size:.78rem">Install</button>
+    </div>`;
+    document.body.prepend(b);
+    b.querySelector('#_ib').onclick = async () => { b.remove(); deferredPrompt.prompt(); await deferredPrompt.userChoice; };
+  });
+})();
+
+// ─────────────────────────────────────────────────────────────
+// BOOT
+// ─────────────────────────────────────────────────────────────
+load();
+render();
+</script>
+</body>
+</html>
