@@ -18,6 +18,13 @@
   --safe-b:env(safe-area-inset-bottom,0px);
   --bn:58px;
 }
+/* ── LIGHT MODE ── */
+html.light{
+  --bg:#f5f6fa;--surface:#ffffff;--card:#f0f1f5;--card2:#e4e6ed;
+  --border:#d0d4de;--accent:#7c3aed;--accent2:#6d28d9;
+  --gold:#d97706;--green:#059669;--red:#dc2626;--blue:#2563eb;--orange:#ea580c;
+  --text:#111827;--muted:#6b7280;--dim:#9ca3af;
+}
 html,body{height:100%;background:var(--bg);color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow:hidden}
 #app{height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
@@ -149,7 +156,7 @@ input[type=number]{text-align:center;font-family:'SF Mono',monospace;font-weight
   font-size:.95rem;font-weight:700;font-family:'SF Mono',monospace;
   border-left:1px solid var(--border);border-right:1px solid var(--border);background:var(--card2)}
 .sr-req{width:36px;height:50px;display:flex;align-items:center;justify-content:center;
-  font-size:.7rem;font-weight:700;background:var(--card2);border-right:1px solid var(--border);color:var(--muted)}
+  font-size:.95rem;font-weight:700;font-family:'SF Mono',monospace;background:var(--card2);border-right:1px solid var(--border);color:var(--muted)}
 .sr-req.met{color:var(--green)}
 
 .score-row.r3    .sr-label{color:var(--red)}   .score-row.r3    .sr-val{color:var(--red)}
@@ -377,6 +384,7 @@ let S={
   playerCount:4,
   playerNames:['Alice','Bob','Carol','Dave','Eve','Frank'],
   rounds:[],cur:null,undo:[],
+  editingIndex:null,   // null = new round, number = re-inserting at this index
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -418,7 +426,7 @@ function blankScore(pid){
 }
 function recompute(){if(!S.cur)return;S.cur.scores.forEach(sc=>{sc.roundTotal=calcRound(sc,S.cur.roundNumber);});}
 function canGoOut(sc){const r=handRule(S.cur.roundNumber);return sc.cleanBooks>=r.reqClean&&sc.dirtyBooks>=r.reqDirty;}
-function initRound(){S.cur={roundNumber:S.rounds.length+1,scores:range(S.playerCount).map(blankScore)};S.undo=[];}
+function initRound(){S.cur={roundNumber:S.rounds.length+1,scores:range(S.playerCount).map(blankScore)};S.undo=[];S.editingIndex=null;}
 
 // ─────────────────────────────────────────────────────────────
 // UTILS
@@ -547,9 +555,24 @@ function trySaveRound(){
     confirmDialog('No one went out','No player is marked as going out. Save hand anyway?',doSaveRound,false);
   else doSaveRound();
 }
-function doSaveRound(){recompute();S.rounds.push(JSON.parse(JSON.stringify(S.cur)));save();showRoundSummary();}
+function doSaveRound(){
+  recompute();
+  var saved=JSON.parse(JSON.stringify(S.cur));
+  if(S.editingIndex!==null){
+    // re-insert at original position
+    S.rounds.splice(S.editingIndex,0,saved);
+    S.editingIndex=null;
+  } else {
+    S.rounds.push(saved);
+  }
+  save();showRoundSummary();
+}
 function showRoundSummary(){
-  const round=S.rounds[S.rounds.length-1];const isLast=round.roundNumber>=4;
+  // find the round we just saved by roundNumber
+  var rn=S.cur?S.cur.roundNumber:(S.rounds[S.rounds.length-1]?S.rounds[S.rounds.length-1].roundNumber:1);
+  const round=S.rounds.find(r=>r.roundNumber===rn)||S.rounds[S.rounds.length-1];
+  const allHandsDone=S.rounds.length>=4&&[1,2,3,4].every(n=>S.rounds.some(r=>r.roundNumber===n));
+  const isLast=allHandsDone;
   const maxR=Math.max(...round.scores.map(s=>s.roundTotal));
   const rows=round.scores.map(sc=>{
     const running=runningTotal(sc.playerId,S.rounds);
@@ -569,7 +592,20 @@ function showRoundSummary(){
     </div>`,true);
 }
 function afterRound(isLast){
-  if(isLast){S.view='history';render();}else{initRound();S.activePlayer=0;render();}
+  S.cur=null;
+  if(isLast){S.view='history';render();}
+  else{
+    // find the lowest hand number not yet saved
+    var done=S.rounds.map(r=>r.roundNumber);
+    var next=[1,2,3,4].find(n=>!done.includes(n));
+    if(next){
+      S.cur={roundNumber:next,scores:range(S.playerCount).map(blankScore)};
+      S.undo=[];
+    } else {
+      S.view='history';
+    }
+    S.activePlayer=0;render();
+  }
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -615,14 +651,31 @@ function renderSidebar(){
       <div class="sb-divider"></div>
       <button class="sb-btn" onclick="exportJSON()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export JSON</button>
       <button class="sb-btn" onclick="exportCSV()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>
+      <button class="sb-btn" id="sb-theme-btn" onclick="toggleTheme()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg><span id="sb-theme-lbl">Light Mode</span></button>
       <button class="sb-btn" style="color:var(--red)" onclick="newGameConfirm()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>New Game</button>
     </div>
   </div>`;
 }
 function renderBottomNav(){
+  const moreSvg=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg>`;
   return `<nav id="bottom-nav">${NAV.map(([id,lbl,ico])=>
     `<button class="bn-btn ${S.view===id?'active':''}" onclick="switchView('${id}')">${ico}<span class="bn-label">${lbl}</span></button>`
-  ).join('')}</nav>`;
+  ).join('')}<button class="bn-btn" onclick="showMore()">${moreSvg}<span class="bn-label">More</span></button></nav>`;
+}
+function showMore(){
+  var isLight=document.documentElement.classList.contains('light');
+  var themeLabel=isLight?'&#x263D; Dark Mode':'&#x2600; Light Mode';
+  var html='<div class="modal-title">Options</div>'
+    +'<div style="display:flex;flex-direction:column;gap:8px">'
+    +'<button class="btn-export" style="height:46px;font-size:.88rem" onclick="closeModal();toggleTheme()">'+themeLabel+'</button>'
+    +'<button class="btn-export" style="height:46px;font-size:.88rem" onclick="closeModal();exportJSON()">&#x2B07; Export JSON</button>'
+    +'<button class="btn-export" style="height:46px;font-size:.88rem" onclick="closeModal();exportCSV()">&#x2B07; Export CSV</button>'
+    +'<button class="btn-danger" style="margin-top:4px" onclick="closeModal();newGameConfirm()">&#x21BA; New Game</button>'
+    +'</div>'
+    +'<div class="modal-actions" style="margin-top:4px">'
+    +'<button class="btn-cancel" onclick="closeModal()">Cancel</button>'
+    +'</div>';
+  showModal(html,true);
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -662,7 +715,7 @@ function renderGameView(){
   mc.innerHTML=`
     <div id="top-bar">
       <div class="hand-meta">
-        <span class="hand-badge">Hand ${S.cur.roundNumber} of 4</span>
+        <span class="hand-badge">${S.editingIndex!==null?'Editing ':''}Hand ${S.cur.roundNumber} of 4</span>
         <span class="hand-pill">Draw <b>${rule.drawCount}</b></span>
         <span class="hand-pill">Meld <b>${rule.meldMin}+</b></span>
         <span class="hand-pill">Go out <b>+${rule.goOutBonus}</b></span>
@@ -706,7 +759,7 @@ function renderGameView(){
     </div>
     <div id="action-bar">
       <button class="btn-undo" ${S.undo.length?'':'disabled'} onclick="undoLast()">↩ Undo</button>
-      <button class="btn-save" onclick="trySaveRound()">Save Hand ${S.cur.roundNumber} →</button>
+      <button class="btn-save" onclick="trySaveRound()">${S.editingIndex!==null?'Update':'Save'} Hand ${S.cur.roundNumber} →</button>
     </div>`;
 }
 
@@ -780,7 +833,7 @@ function renderHistory(){
         </table></div>
         <div class="rr-actions">
           <button class="btn-sm btn-sm-plain" onclick="editRound(${ri})">Edit Hand</button>
-          ${isLast?`<button class="btn-sm btn-sm-danger" onclick="deleteRound(${ri})">Delete</button>`:''}
+          <button class="btn-sm btn-sm-danger" onclick="deleteRound(${ri})">Delete</button>
         </div>
       </div>
     </div>`;
@@ -912,8 +965,14 @@ function startGame(){
 function resumeGame(){S.screen='game';if(!S.cur)initRound();render();}
 function toggleRR(ri){const el=$(`rr-${ri}`);if(el)el.classList.toggle('open');}
 function editRound(ri){
-  confirmDialog('Edit Hand',`Reload Hand ${S.rounds[ri].roundNumber} for editing? It will be removed from history until re-saved.`,
-    ()=>{S.cur=JSON.parse(JSON.stringify(S.rounds[ri]));S.rounds.splice(ri,1);S.undo=[];S.view='game';S.activePlayer=0;save();render();},false);
+  confirmDialog('Edit Hand','Reload Hand '+(S.rounds[ri].roundNumber)+' for editing? It will be removed from history until you re-save it.',
+    function(){
+      S.cur=JSON.parse(JSON.stringify(S.rounds[ri]));
+      S.editingIndex=ri;          // remember where to put it back
+      S.rounds.splice(ri,1);
+      S.undo=[];S.view='game';S.activePlayer=0;
+      save();render();
+    },false);
 }
 function deleteRound(ri){
   confirmDialog('Delete Hand',`Permanently delete Hand ${S.rounds[ri].roundNumber}?`,()=>{S.rounds.splice(ri,1);save();renderView();});
@@ -974,7 +1033,33 @@ self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>
   });
 })();
 
-load();render();
+// ─────────────────────────────────────────────────────────────
+// THEME
+// ─────────────────────────────────────────────────────────────
+function applyTheme(light){
+  document.documentElement.classList.toggle('light', light);
+  // update sidebar label if it exists
+  var lbl=document.getElementById('sb-theme-lbl');
+  if(lbl)lbl.textContent=light?'Dark Mode':'Light Mode';
+  // update meta theme-color
+  var mc=document.querySelector('meta[name="theme-color"]');
+  if(mc)mc.content=light?'#f5f6fa':'#0d1117';
+}
+function toggleTheme(){
+  var isLight=!document.documentElement.classList.contains('light');
+  localStorage.setItem('hnf-theme', isLight?'light':'dark');
+  applyTheme(isLight);
+  // re-render sidebar label in place without full render
+  var lbl=document.getElementById('sb-theme-lbl');
+  if(lbl)lbl.textContent=isLight?'Dark Mode':'Light Mode';
+}
+function loadTheme(){
+  var t=localStorage.getItem('hnf-theme');
+  // default to dark; apply light only if explicitly set
+  applyTheme(t==='light');
+}
+
+load();loadTheme();render();
 </script>
 </body>
 </html>
