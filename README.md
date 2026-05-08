@@ -1,121 +1,116 @@
-# ♠ Hand & Foot Score Keeper
+# ♠ Hand & Foot IndyBlue Score Keeper
 
-A mobile-first Progressive Web App (PWA) for scoring **Progressive Hand and Foot** — a 4-hand card game variant. No installation required; runs entirely in the browser and can be added to your home screen.
+A mobile-first static web app for scoring a 4-hand **Hand & Foot** game. The app runs entirely in the browser, supports installable PWA behavior, and now uses **JSON save/load** so full game state can move between devices or browsers.
 
----
+## Current highlights
 
-## Features
+- 4-hand progressive rules with per-hand draw count, meld minimum, go-out bonus, and clean/dirty requirements
+- Tracks:
+  - Red 3s
+  - Clean books
+  - Dirty books
+  - Book of 7s
+  - Book of Wilds
+  - Meld/card points
+- Enforces go-out requirements before a player can be marked out
+- JSON `Save Game` / `Load Game` support for full game state
+- In-browser persistence with `localStorage`
+- Undo within the active hand
+- Hand history with expandable details and edit-hand flow
+- Rules reference with book scoring and individual card values
+- Light / dark mode
+- Works for 2–6 players or teams
 
-- **4-hand progressive rules** — each hand has its own draw count, meld minimum, go-out bonus, and required book counts
-- **All book types tracked** — Clean, Dirty, Book of 7s, and Book of Wilds/2s
-- **Go-out requirement enforcement** — the Go Out button is locked until a player meets the clean & dirty book requirements for that hand
-- **Live leaderboard** — running totals update after every tap
-- **Round summary** after each hand with per-player deltas and running totals
-- **History tab** — expandable detail per hand plus cumulative subtotals matching the paper scoring sheet
-- **Rules tab** — full per-hand reference table and scoring values, always one tap away
-- **Undo** — up to 60 actions undoable within a hand
-- **Edit / Delete** last hand from history
-- **Export** game data as JSON or CSV
-- **PWA** — installable on iOS and Android home screen, works offline via Service Worker
-- **2–6 players or teams**
+## Scoring reference
 
----
-
-## Scoring Rules
-
-### Per-Hand Requirements
+### Per-hand requirements
 
 | Hand | Draw | Meld Min | Clean Req | Dirty Req | Go-Out Bonus |
-|------|------|----------|-----------|-----------|-------------|
-| 1st  | 3    | 90 pts   | 3         | 3         | +300        |
-| 2nd  | 4    | 120 pts  | 4         | 4         | +400        |
-| 3rd  | 5    | 150 pts  | 5         | 5         | +500        |
-| 4th  | 6    | 180 pts  | 6         | 6         | +600        |
+| --- | --- | --- | --- | --- | --- |
+| 1 | 3 | 90 | 3 | 3 | +300 |
+| 2 | 4 | 120 | 4 | 4 | +400 |
+| 3 | 5 | 150 | 5 | 5 | +500 |
+| 4 | 6 | 180 | 6 | 6 | +600 |
 
-### Book & Card Values
+### Books and bonuses
 
-| Item                  | Points       |
-|-----------------------|-------------|
-| Red 3                 | +100 each   |
-| Dirty Book            | +300 each   |
-| Clean Book            | +500 each   |
-| Book of 7s            | +1,000 each |
-| Book of Wilds / 2s    | +1,500 each |
-| Points of all cards   | Face value  |
-| Going out bonus       | Per hand (see above) |
+| Item | Points |
+| --- | --- |
+| Red 3 | +100 each |
+| Dirty Book | +300 each |
+| Clean Book | +500 each |
+| Book of 7s | +1,000 each |
+| Book of Wilds / 2s | +1,500 each |
 
-> **Wilds** are Jokers and 2s. A **Dirty book** contains at least one wild. A **Clean book** is 7 natural cards of the same rank. A **Book of 7s** is 7 cards of the "7" rank. A **Book of Wilds** is made entirely of wild cards.
+### Individual card values
 
----
+These count **for** you when melded and **against** you if they remain in your Hand or Foot at the end of play.
 
-## Getting Started
+| Cards | Points |
+| --- | --- |
+| Jokers | 50 each |
+| Twos & Aces | 20 each |
+| Eight through King | 10 each |
+| Four through Seven | 5 each |
+| Black Threes | 5 each |
 
-### Play instantly in a browser
+## Local testing
 
-Just open `index.html` in any modern browser — no build step, no dependencies.
-
-```bash
-# Clone the repo
-git clone https://github.com/your-username/hand-foot-score.git
-cd hand-foot-score
-
-# Open directly
-open index.html
-# or serve locally
-npx serve .
-```
-
-### Install as a PWA (phone / tablet)
-
-**iOS (Safari):** Open the app → tap the Share button → "Add to Home Screen"
-
-**Android (Chrome):** Open the app → tap the menu (⋮) → "Add to Home Screen" / "Install App"
-
-Once installed the app works fully offline.
-
----
-
-## Project Structure
-
-```
-hand-foot-score/
-├── index.html               # Entire app — single self-contained file
-├── handfootscoringrules.pdf # Source scoring rules reference
-├── handfootscoringsheet.pdf # Paper score sheet (4-hand layout)
-└── README.md
-```
-
-The app is intentionally a **single HTML file** with no external dependencies, making it trivial to host anywhere (GitHub Pages, Netlify, a USB drive, etc.).
-
----
-
-## Hosting on GitHub Pages
-
-1. Push the repo to GitHub
-2. Go to **Settings → Pages**
-3. Set source to `main` branch, root `/`
-4. Your app will be live at `https://your-username.github.io/hand-foot-score/`
-
----
-
-## Local Development
-
-No build tools required. Edit `index.html` directly. For a live-reload workflow:
+This is a static app, so the easiest way to test locally is to run a simple server from the repo root:
 
 ```bash
-npx serve .
-# or
-python3 -m http.server 8080
+python3 -m http.server 8000
 ```
 
----
+Then open:
 
-## Data & Privacy
+```text
+http://localhost:8000/public/
+```
 
-All game data is stored locally in `localStorage` — nothing is sent to any server. Use the **Export JSON** or **Export CSV** buttons in the Rules tab to save a copy of your scores.
+### Recommended pre-push check
 
----
+- Start a new game
+- Enter a few scores
+- Mark a player as going out
+- Save a hand
+- Save Game to JSON
+- Refresh the page
+- Load Game from the saved JSON
+- Confirm history, active hand, player names, and theme are restored correctly
+
+## VS Code preview
+
+If you use **Live Preview** in VS Code:
+
+- open the repo root as the workspace
+- open `public/index.html`
+- run `Live Preview: Show Preview`
+
+## Project structure
+
+```text
+hand-foot-scoring/
+├── README.md
+├── docs/
+└── public/
+    ├── index.html
+    └── assets/
+        └── hnf-logo.png
+```
+
+## Data and privacy
+
+- Game data is stored locally in browser `localStorage`
+- `Save Game` exports the full state as JSON
+- Nothing is sent to a server
+
+## Notes
+
+- The app is intentionally kept as a single-file HTML/JS/CSS app under `public/index.html`
+- The setup logo is loaded from `public/assets/hnf-logo.png`
+- The PWA cache includes the main app route and setup logo asset
 
 ## License
 
-MIT — free to use, modify, and share.
+MIT
