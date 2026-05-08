@@ -368,7 +368,7 @@ input[type=number]{text-align:center;font-family:'SF Mono',monospace;font-weight
 <body>
 <div id="app"></div>
 <div id="toast"></div>
-<input type="file" id="csv-import-input" accept=".csv" style="display:none" onchange="handleImportCSV(this)">
+<input type="file" id="game-import-input" accept=".json,application/json" style="display:none" onchange="handleImportJSON(this)">
 <script>
 // ─────────────────────────────────────────────────────────────
 // CONSTANTS
@@ -393,7 +393,7 @@ const BUILD_DATE = '2026-05-07';
 let S={
   screen:'setup',view:'game',activePlayer:0,
   playerCount:4,
-  playerNames:['Alice','Bob','Carol','Dave','Eve','Frank'],
+  playerNames:['Scott','Cathy','Trish','Andy','Megan','Chandler'],
   rounds:[],cur:null,undo:[],
   editingIndex:null,
 };
@@ -418,7 +418,7 @@ function load(){
     S.view=d.view||'game';
     S.activePlayer=d.activePlayer||0;
     S.playerCount=d.playerCount||4;
-    S.playerNames=d.playerNames||['Alice','Bob','Carol','Dave','Eve','Frank'];
+    S.playerNames=d.playerNames||['Scott','Cathy','Trish','Andy','Megan','Chandler'];
     S.rounds=d.rounds||[];
     S.cur=d.cur||null;
   }catch(e){
@@ -677,8 +677,8 @@ function renderSidebar(){
     <div class="sb-nav">${btns}</div>
     <div class="sb-foot">
       <div class="sb-divider"></div>
-      <button class="sb-btn" onclick="exportCSV()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>
-      <button class="sb-btn" onclick="triggerImportCSV()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import CSV</button>
+      <button class="sb-btn" onclick="saveGameJSON()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Save Game</button>
+      <button class="sb-btn" onclick="triggerImportJSON()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Load Game</button>
       <button class="sb-btn" id="sb-theme-btn" onclick="toggleTheme()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg><span id="sb-theme-lbl">Light Mode</span></button>
       <button class="sb-btn" style="color:var(--red)" onclick="newGameConfirm()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>New Game</button>
     </div>
@@ -699,8 +699,8 @@ function showMore(){
   var html='<div class="modal-title">Options</div>'
     +'<div style="display:flex;flex-direction:column;gap:8px">'
     +'<button class="btn-export" style="height:46px;font-size:.88rem" onclick="closeModal();toggleTheme()">'+themeLabel+'</button>'
-    +'<button class="btn-export" style="height:46px;font-size:.88rem" onclick="closeModal();exportCSV()">&#x2B07; Export CSV</button>'
-    +'<button class="btn-export" style="height:46px;font-size:.88rem" onclick="closeModal();triggerImportCSV()">&#x2B06; Import CSV</button>'
+    +'<button class="btn-export" style="height:46px;font-size:.88rem" onclick="closeModal();saveGameJSON()">&#x2B07; Save Game</button>'
+    +'<button class="btn-export" style="height:46px;font-size:.88rem" onclick="closeModal();triggerImportJSON()">&#x2B06; Load Game</button>'
     +'<button class="btn-danger" style="margin-top:4px" onclick="closeModal();newGameConfirm()">&#x21BA; New Game</button>'
     +'</div>'
     +'<div class="modal-actions" style="margin-top:4px">'
@@ -944,8 +944,8 @@ function renderRules(){
       </div>
       <div class="settings-section"><div class="s-section-title">Data &amp; Game</div>
         <div class="export-row">
-          <button class="btn-export" onclick="exportCSV()">Export CSV</button>
-          <button class="btn-export" onclick="triggerImportCSV()">Import CSV</button>
+          <button class="btn-export" onclick="saveGameJSON()">Save Game</button>
+          <button class="btn-export" onclick="triggerImportJSON()">Load Game</button>
         </div>
         <div class="danger-row"><button class="btn-danger" onclick="newGameConfirm()">New Game</button></div>
       </div>
@@ -1022,77 +1022,68 @@ function doNewGame(){
 // ─────────────────────────────────────────────────────────────
 // EXPORT
 // ─────────────────────────────────────────────────────────────
-function triggerImportCSV(){
-  var inp=document.getElementById('csv-import-input');
+function triggerImportJSON(){
+  var inp=document.getElementById('game-import-input');
   if(inp)inp.click();
 }
-function handleImportCSV(input){
+function handleImportJSON(input){
   var file=input.files[0];
   if(!file)return;
   var reader=new FileReader();
   reader.onload=function(e){
     try{
-      var lines=e.target.result.split('\n').filter(function(l){
-        return l.trim()&&!l.trim().startsWith('#');
-      });
-      if(lines.length<2){toast('CSV appears empty or invalid');return;}
-      // Parse header to find player names (cols after Hand, Draw, Meld Min)
-      var headers=lines[0].split(',');
-      var playerNames=headers.slice(3).map(function(n){return n.trim();});
-      var pc=playerNames.length;
-      if(pc<2||pc>6){toast('Expected 2-6 players in CSV');return;}
-      // Parse hand rows (skip Grand Total row)
-      var rounds=[];
-      for(var i=1;i<lines.length;i++){
-        var cols=lines[i].split(',');
-        if(!cols[0]||isNaN(parseInt(cols[0])))continue; // skip Grand Total
-        var handNum=parseInt(cols[0]);
-        if(handNum<1||handNum>4)continue;
-        var scores=playerNames.map(function(name,pi){
-          var total=parseInt(cols[3+pi])||0;
-          // We only have round totals in CSV, store as meld points
-          // so the history display shows correct totals
-          return{
-            playerId:pi,
-            meldPoints:total,
-            red3Count:0,cleanBooks:0,dirtyBooks:0,
-            bookOf7s:0,bookOfWilds:0,
-            wentOut:false,
-            roundTotal:total
-          };
-        });
-        rounds.push({roundNumber:handNum,scores:scores});
+      var payload=JSON.parse(e.target.result);
+      var state=payload&&payload.state?payload.state:payload;
+      if(!state||!Array.isArray(state.playerNames)||typeof state.playerCount!=='number'){
+        toast('JSON file is not a valid game save');
+        return;
       }
-      rounds.sort(function(a,b){return a.roundNumber-b.roundNumber;});
-      if(rounds.length===0){toast('No valid hand data found in CSV');return;}
-      // Apply imported data
-      S.rounds=rounds;
-      S.cur=null;
-      S.undo=[];
-      S.editingIndex=null;
-      S.playerCount=pc;
-      S.playerNames=playerNames.concat(['Alice','Bob','Carol','Dave','Eve','Frank'].slice(pc));
-      S.screen='game';
-      S.view='history';
+      if(state.playerCount<2||state.playerCount>6){
+        toast('Saved game has invalid player count');
+        return;
+      }
+      S.screen=state.screen||'game';
+      S.view=state.view||'history';
+      S.activePlayer=typeof state.activePlayer==='number'?state.activePlayer:0;
+      S.playerCount=state.playerCount;
+      S.playerNames=state.playerNames.slice(0,6);
+      S.rounds=Array.isArray(state.rounds)?state.rounds:[];
+      S.cur=state.cur||null;
+      S.undo=Array.isArray(state.undo)?state.undo:[];
+      S.editingIndex=state.editingIndex===null||typeof state.editingIndex==='number'?state.editingIndex:null;
+      if(S.playerNames.length<6){
+        S.playerNames=S.playerNames.concat(['Scott','Cathy','Trish','Andy','Megan','Chandler'].slice(S.playerNames.length));
+      }
+      if(S.screen!=='setup')S.screen='game';
       save();
       render();
-      toast('Imported '+rounds.length+' hand'+(rounds.length>1?'s':'')+' for '+pc+' players');
+      toast('Loaded game for '+S.playerCount+' player'+(S.playerCount>1?'s':''));
     }catch(err){
-      toast('Could not read CSV: '+err.message);
+      toast('Could not load JSON: '+err.message);
     }
-    // reset so same file can be re-imported
     input.value='';
   };
   reader.readAsText(file);
 }
-function exportCSV(){
-  const names=range(S.playerCount).map(i=>S.playerNames[i]||'P'+(i+1));
-  const rows=S.rounds.map(r=>{const rule=handRule(r.roundNumber);
-    return[r.roundNumber,rule.drawCount,rule.meldMin,...range(S.playerCount).map(i=>{const sc=r.scores.find(s=>s.playerId===i);return sc?sc.roundTotal:0;})].join(',');
-  });
-  var meta='# Hand & Foot IndyBlue v'+VERSION+' | Exported: '+new Date().toLocaleString()+'\n';
-  dl('handfootscore.csv',meta+[['Hand','Draw','Meld Min',...names].join(','),...rows,
-    ['Grand Total','','', ...range(S.playerCount).map(i=>runningTotal(i,S.rounds))].join(',')].join('\n'),'text/csv');
+function saveGameJSON(){
+  var payload={
+    app:'Hand & Foot IndyBlue',
+    version:VERSION,
+    buildDate:BUILD_DATE,
+    exportedAt:new Date().toISOString(),
+    state:{
+      screen:S.screen,
+      view:S.view,
+      activePlayer:S.activePlayer,
+      playerCount:S.playerCount,
+      playerNames:S.playerNames,
+      rounds:S.rounds,
+      cur:S.cur,
+      undo:S.undo,
+      editingIndex:S.editingIndex
+    }
+  };
+  dl('handfootscore.json',JSON.stringify(payload,null,2),'application/json');
 }
 function dl(name,content,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();}
 
